@@ -3,22 +3,23 @@ import { Text, View, StyleSheet, TextInput, TouchableOpacity, Alert } from 'reac
 import { useNavigation, useTheme } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { StackNavigationProp } from '@react-navigation/stack';
+import  Constants  from 'expo-constants';
 
-interface LoginProps {}
 
-const Login = (props: LoginProps) => {
+
+const Login = () => {
   const { colors } = useTheme();
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const navigation = useNavigation<StackNavigationProp<any>>();
 
   const handleLogin =  async() =>{
+    const serverUrl = Constants.expoConfig?.extra?.SERVER_URL;
     const formdata = new FormData();
     formdata.append('Username',username);
     formdata.append('Password',password);
     formdata.append('formType','login');
-  
-    const response = await fetch("http://10.149.88.34/Home/Authentication",{method:"post",body:formdata});
+    const response = await fetch(`${serverUrl}/Home/Authentication`,{method:"post",body:formdata});
     const result:any = await response.json();
     if(result.status) navigation.navigate('Verification');
     else Alert.alert("Error",result.response)

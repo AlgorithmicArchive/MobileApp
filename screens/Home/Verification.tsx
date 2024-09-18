@@ -3,6 +3,7 @@ import { Text, View, StyleSheet, TextInput, TouchableOpacity, Alert } from 'reac
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useUserType } from '../../UserTypeContext';
+import  Constants  from 'expo-constants';
 
 
 
@@ -26,10 +27,11 @@ const Verification = () => {
   };
 
   const handleSubmit = async() => {
+    const serverUrl = Constants.expoConfig?.extra?.SERVER_URL;
     const formdata = new FormData();
     formdata.append("otp",inputType=="OTP"?input:'');
     formdata.append("backupCode",inputType=="BackupCode"?input:'');
-    const response = await fetch("http://10.149.88.34/Home/Verification",{method:'post',body:formdata});
+    const response = await fetch(`${serverUrl}/Home/Verification`,{method:'post',body:formdata});
     const result = await response.json();
     console.log(result);
     setUserType(result.userType)

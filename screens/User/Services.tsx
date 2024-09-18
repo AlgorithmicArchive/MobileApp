@@ -1,65 +1,70 @@
-import * as React from 'react';
-import { Text, View, StyleSheet, TextInput } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, ActivityIndicator, Alert } from 'react-native';
 import { useThemedStyles } from '../../styles/styles';
-import { useTheme } from '@react-navigation/native';
-import { Table, Row, Rows } from 'react-native-table-component';
-
+import { useNavigation, useTheme } from '@react-navigation/native';
+import Constants from 'expo-constants';
+import DynamicTable from '../../components/Table';
+import { StackNavigationProp } from '@react-navigation/stack';
 interface ServicesProps {}
 
 const Services = (props: ServicesProps) => {
-    const { colors } = useTheme();
-    const { containerStyles } = useThemedStyles();
+  const [columns, setColumns] = useState([{"title": "S.No."}, {"title": "Service Name"}, {"title": "Department"}, {"title": "Action"}]);
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true); // Add a loading state
+  const [error, setError] = useState<string | null>(null); // Add an error state
+  const { colors } = useTheme();
+  const { containerStyles } = useThemedStyles();
+  const serverUrl = Constants?.expoConfig?.extra?.SERVER_URL;
+  const navigation = useNavigation<StackNavigationProp<any>>();
 
-    const [search, setSearch] = React.useState('');
-    const [data, setData] = React.useState([
-        ['1', 'Service A', 'Active'],
-        ['2', 'Service B', 'Inactive'],
-        ['3', 'Service C', 'Active'],
-        // Add more data as needed
-    ]);
+  const handleFunction = async(serviceId:string) =>{
+    const formdata = new FormData();
+    formdata.append("serviceId",serviceId);
+    const response = await fetch(`${serverUrl}/User/SetServiceForm`,{method:'post',body:formdata});
+    const result = await response.json();
+    if(result.status) navigation.navigate('Form');
+  }
 
-    const filteredData = data.filter(item => item[1].toLowerCase().includes(search.toLowerCase()));
+  useEffect(() => {
+    const fetchServie = async () => {
+      try {
+        if (!serverUrl) {
+          throw new Error('Server URL is not defined');
+        }
 
-    return (
-        <View style={[containerStyles.fullScreen, { backgroundColor: colors.background }]}>
-            <Text style={styles.title}>Services</Text>
-            
-            <TextInput
-                style={styles.searchInput}
-                placeholder="Search"
-                value={search}
-                onChangeText={text => setSearch(text)}
-            />
-            
-            <Table borderStyle={{ borderColor: colors.border,backgroundColor:'#fff' }}>
-                <Row data={['ID', 'Name', 'Status']} style={styles.head} textStyle={styles.text}/>
-                <Rows data={filteredData} textStyle={styles.text}/>
-            </Table>
-        </View>
-    );
+        const response = await fetch(`${serverUrl}/User/GetServices`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const result = await response.json();
+        setColumns(result.obj.columns);
+        setData(result.obj.data);
+        console.log(result.obj.columns);
+        console.log(result.obj.data);
+      } catch (error:any) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServie();
+  }, []); // Empty dependency array ensures this runs only once
+
+//   if (loading) {
+//     return <ActivityIndicator size="large" color={colors.primary} style={containerStyles.fullScreen} />;
+//   }
+
+//   if (error) {
+//     return <Text style={{ color: colors.text }}>Error: {error}</Text>;
+//   }
+
+  return (
+    <View style={[containerStyles.fullScreen, { backgroundColor: colors.background, width: '100%' }]}>
+      <DynamicTable columns={columns} data={data} onButtonPress={handleFunction}/>
+    </View>
+  );
 };
-
-const styles = StyleSheet.create({
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    searchInput: {
-        height: 40,
-        borderColor: '#ddd',
-        borderWidth: 1,
-        marginBottom: 10,
-        paddingHorizontal: 10,
-    },
-    head: {
-        height: 50,
-        backgroundColor: 'red',
-    },
-    text: {
-        margin: 6,
-        color: '#fff', // Ensure text color is set
-    },
-});
 
 export default Services;

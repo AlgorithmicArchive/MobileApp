@@ -13,6 +13,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useUserType } from '../UserTypeContext';
+import Form from '../screens/User/Form';
 
 const Stack = createNativeStackNavigator();
 
@@ -67,6 +68,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Settings">
               {() => <SettingsScreen toggleTheme={toggleTheme} />}
         </Stack.Screen>
+        <Stack.Screen name='Form' component={Form} options={{headerShown:false}} />
       </Stack.Navigator>
     </NavigationContainer>
   );
