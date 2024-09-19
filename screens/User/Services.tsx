@@ -40,8 +40,6 @@ const Services = (props: ServicesProps) => {
         const result = await response.json();
         setColumns(result.obj.columns);
         setData(result.obj.data);
-        console.log(result.obj.columns);
-        console.log(result.obj.data);
       } catch (error:any) {
         setError(error.message);
       } finally {
@@ -52,13 +50,13 @@ const Services = (props: ServicesProps) => {
     fetchServie();
   }, []); // Empty dependency array ensures this runs only once
 
-//   if (loading) {
-//     return <ActivityIndicator size="large" color={colors.primary} style={containerStyles.fullScreen} />;
-//   }
+    if (loading) {
+      return <ActivityIndicator size="large" color={colors.primary} style={containerStyles.fullScreen} />;
+    }
 
-//   if (error) {
-//     return <Text style={{ color: colors.text }}>Error: {error}</Text>;
-//   }
+    if (error) {
+      return <Text style={{ color: colors.text }}>Error: {error}</Text>;
+    }
 
   return (
     <View style={[containerStyles.fullScreen, { backgroundColor: colors.background, width: '100%' }]}>
