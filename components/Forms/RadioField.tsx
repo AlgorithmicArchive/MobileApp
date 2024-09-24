@@ -1,56 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
 
-type RadioButtonProps = {
-  label: string;
-  value: string;
-  selected: boolean;
-  onPress: (value: string) => void;
+type RadioFieldProps = {
+  options: string[];
+  selectedValue: string;
+  onButtonPress: (value: string) => void;
+  onChangeText: (value: string) => void;
+  textValue: string;
 };
 
-const RadioButton: React.FC<RadioButtonProps> = ({ label, value, selected, onPress }) => {
-  return (
-    <TouchableOpacity
-      style={styles.radioButtonContainer}
-      onPress={() => onPress(value)}
-    >
-      <View style={[styles.radioCircle, selected && styles.selected]}>
-        {selected && <View style={styles.radioCircleFilled} />}
-      </View>
-      <Text style={styles.radioButtonText}>{label}</Text>
-    </TouchableOpacity>
-  );
-};
+const RadioField: React.FC<RadioFieldProps> = ({
+  options,
+  selectedValue,
+  onButtonPress,
+  onChangeText,
+  textValue,
+}) => {
+  // Initialize local state with the selected value
+  const [selectedRadio, setSelectedRadio] = useState(selectedValue);
 
-const RadioField: React.FC<{ options: string[]  }> = ({ options }) => {
-  const [selectedValue, setSelectedValue] = useState<string>(options[0]);
-  const [inputValue, setInputValue] = useState<string>('');
-
-  const handlePress = (value: string) => {
-    setSelectedValue(value);
-    setInputValue(''); // Clear input value when selecting a new option
-  };
+  // Update the selected radio button when props.selectedValue changes
+  useEffect(() => {
+    setSelectedRadio(selectedValue);
+    onButtonPress(selectedValue);
+  }, [selectedValue]);
 
   return (
     <View style={styles.container}>
-      <View style={{flexDirection:"row", gap:5,width:'100%'}}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', width: '100%' }}>
         {options.map((option) => (
-            <RadioButton
+          <TouchableOpacity
             key={option}
-            label={option}
-            value={option}
-            selected={selectedValue === option}
-            onPress={handlePress}
-            />
+            style={styles.radioButtonContainer}
+            onPress={() => {
+              setSelectedRadio(option);
+              onButtonPress(option); // Trigger the parent update when a button is pressed
+            }}
+          >
+            <View
+              style={[
+                styles.radioCircle,
+                selectedRadio.toLowerCase() === option.toLowerCase() ? styles.selected : null,
+              ]}
+            >
+              {selectedRadio.toLowerCase() === option.toLowerCase() && (
+                <View style={styles.radioCircleFilled} />
+              )}
+            </View>
+            <Text style={styles.radioButtonText}>{option}</Text>
+          </TouchableOpacity>
         ))}
       </View>
 
       <TextInput
         style={styles.input}
-        placeholder={selectedValue}
+        placeholder={selectedValue} // Use a static or descriptive placeholder
         placeholderTextColor="gray"
-        value={inputValue}
-        onChangeText={setInputValue}
+        onChangeText={onChangeText} // Trigger parent update when text is changed
+        value={textValue}
       />
     </View>
   );
@@ -60,17 +67,13 @@ export default RadioField;
 
 const styles = StyleSheet.create({
   container: {
-    width:'100%',
-    marginBottom:10
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    width: '100%',
     marginBottom: 10,
   },
   radioButtonContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 10,
   },
   radioCircle: {
     height: 20,
@@ -82,7 +85,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   selected: {
-    borderColor: '#3498db',
+    borderColor: '#3498db', // Make sure this color is visible and distinct
   },
   radioCircleFilled: {
     width: 12,
@@ -93,7 +96,7 @@ const styles = StyleSheet.create({
   radioButtonText: {
     marginLeft: 10,
     fontSize: 16,
-    color:'#fff'
+    color: '#fff',
   },
   input: {
     borderWidth: 1,
@@ -101,7 +104,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginTop: 5,
-    marginBottom:10,
-    color:'#fff'
+    marginBottom: 10,
+    color: '#fff',
   },
 });

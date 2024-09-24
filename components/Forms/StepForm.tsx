@@ -1,4 +1,5 @@
-import React from 'react';
+// StepForm.tsx
+import React, { useState } from 'react';
 import { FlatList, View, StyleSheet } from 'react-native';
 import FormContainer from '../../components/Forms/FormContainer';
 import ServiceName from './ServiceName';
@@ -8,7 +9,8 @@ interface StepFormProps {
   serviceName: string;
   currentForm: any[];
   formValues: any;
-  handleInputChange: (label: string, value: string) => void;
+  formErrors: Record<string, string>;
+  handleInputChange: (label: string, value: string, field: any) => void;
   step: number;
   handlePrevious: () => void;
   handleNext: () => void;
@@ -19,12 +21,15 @@ const StepForm: React.FC<StepFormProps> = ({
   serviceName,
   currentForm,
   formValues,
+  formErrors,
   handleInputChange,
   step,
   handlePrevious,
   handleNext,
   canGoNext,
 }) => {
+  const [scrollEnabled, setScrollEnabled] = useState(true); // State to toggle scroll in FlatList
+
   const renderItem = ({ item }: { item: any }) => {
     switch (item.type) {
       case 'serviceName':
@@ -34,8 +39,10 @@ const StepForm: React.FC<StepFormProps> = ({
           <FormContainer
             formElements={item.formElements}
             formValues={formValues}
+            formErrors={formErrors}
             step={step}
             handleInputChange={handleInputChange}
+            setParentScrollEnabled={setScrollEnabled} // Pass the scroll toggler
           />
         );
       case 'buttons':
@@ -65,6 +72,7 @@ const StepForm: React.FC<StepFormProps> = ({
       keyExtractor={(item) => item.id}
       renderItem={renderItem}
       contentContainerStyle={styles.flatListContent}
+      scrollEnabled={scrollEnabled} // Control scroll based on state
     />
   );
 };

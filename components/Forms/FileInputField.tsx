@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
-// Define the props interface
 interface FileInputFieldProps {
   label?: string;
   onImageSelected?: (uri: string) => void; // Callback for selected image URI
+  fileValue?: string | null; // The current file value from formValues
 }
 
-const FileInputField: React.FC<FileInputFieldProps> = ({ label, onImageSelected }) => {
-  const [image, setImage] = useState<string | null>(null);
+const FileInputField: React.FC<FileInputFieldProps> = ({ label, onImageSelected, fileValue }) => {
+  const [image, setImage] = useState<string | null>(fileValue || null); // Initialize with fileValue
 
   // Function to handle image selection
   const pickImage = async () => {
@@ -40,11 +40,18 @@ const FileInputField: React.FC<FileInputFieldProps> = ({ label, onImageSelected 
     }
   };
 
+  // Update the image when fileValue changes (e.g., when navigating back to this step)
+  useEffect(() => {
+    if (fileValue) {
+      setImage(fileValue);
+    }
+  }, [fileValue]);
+
   return (
     <View style={styles.container}>
       <Text style={[styles.buttonText, { width: '100%' }]}>{label}</Text>
       <TouchableOpacity style={styles.button} onPress={pickImage}>
-        <Text style={styles.buttonText}>Choose Image</Text>
+        <Text style={styles.buttonText}>Choose File</Text>
       </TouchableOpacity>
       {image && (
         <View style={styles.imageContainer}>

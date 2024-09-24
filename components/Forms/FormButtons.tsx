@@ -27,6 +27,12 @@ const FormButtons: React.FC<FormButtonsProps> = ({ step, onPrevious, onNext, can
       >
         <Text style={styles.buttonText}>Next</Text>
       </TouchableOpacity>
+      {step==4 && <TouchableOpacity
+        style={[styles.button, { backgroundColor: colors.primary }]}
+        onPress={onNext}
+      >
+        <Text style={styles.buttonText}>Submit</Text>
+      </TouchableOpacity>}
     </View>
   );
 };

@@ -15,6 +15,7 @@ const Login = () => {
 
   const handleLogin =  async() =>{
     const serverUrl = Constants.expoConfig?.extra?.SERVER_URL;
+    console.log("URL",serverUrl);
     const formdata = new FormData();
     formdata.append('Username',username);
     formdata.append('Password',password);

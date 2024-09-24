@@ -21,7 +21,7 @@ const TextInputField: React.FC<TextInputFieldProps> = ({
 }) => {
   return (
     <View style={{width:'100%'}}>
-      <Text style={{color:'#fff'}}>{label}</Text>
+      <Text style={{color:'#fff',fontSize: 16}}>{label}</Text>
       <TextInput 
         style={styles.input} 
         keyboardType={keyboardType}  
@@ -45,6 +45,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginBottom: 10,
     color:'#fff',
-    padding:3
+    padding:3,
   },
 });
