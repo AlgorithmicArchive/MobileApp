@@ -8,6 +8,13 @@ import DatePickerField from './DatePickerField';
 import RadioField from './RadioField';
 import { Field } from '../../types';
 import { fetchBlocks, fetchDistricts, fetchTehsils } from '../../assets/functions/fetch';
+import { useTheme } from '@react-navigation/native';
+import CustomInput from '../FormComponents/CustomInput';
+import { useForm } from 'react-hook-form';
+import CustomSelect from '../FormComponents/CustomSelect';
+import CustomImageSelector from '../FormComponents/CustomImageSelector';
+import CustomDatePicker from '../FormComponents/CustomDatePicker';
+import CustomRadioButton from '../FormComponents/CustomRadioButton';
 
 interface FormContainerProps {
   formElements: Field[];
@@ -26,10 +33,11 @@ const FormContainer: React.FC<FormContainerProps> = ({
   handleInputChange,
   setParentScrollEnabled,
 }) => {
+  const { control, handleSubmit, formState: { errors } } = useForm<any>();
   const [districtOptions, setDistrictOptions] = useState<{ label: string; value: string }[]>([]);
   const [tehsilOptions, setTehsilOptions] = useState<{ label: string; value: string }[]>([]);
   const [blockOptions, setBlockOptions] = useState<{ label: string; value: string }[]>([]);
-
+  const {colors} = useTheme();
   useEffect(() => {
     const districtField = formElements.find((field) => field.name.includes('District'));
     if (districtField) {
@@ -96,7 +104,7 @@ const FormContainer: React.FC<FormContainerProps> = ({
         style={{
           fontWeight: 'bold',
           fontSize: 24,
-          color: '#fff',
+          color: colors.text,
           marginBottom: 10,
           textAlign: 'center',
         }}
@@ -114,81 +122,37 @@ const FormContainer: React.FC<FormContainerProps> = ({
         const isDistrictField = field.name.includes('District');
         const isTehsilField = field.name.includes('Tehsil');
         const isBlockField = field.name.includes('Block');
-        const options = isDistrictField ? districtOptions :isTehsilField?tehsilOptions:isBlockField?blockOptions: field.options?.map(option => ({ label: option, value: option }));
+        const options = isDistrictField
+        ? districtOptions
+        : isTehsilField
+        ? tehsilOptions
+        : isBlockField
+        ? blockOptions
+        : field.options?.map(option => ({ label: option, value: option })) ?? []; // Provide an empty array as a default
 
         switch (field.type) {
           case 'text':
           case 'email':
             return (
-              <View key={field.name || index} style={styles.fieldContainer}>
-                <TextInputField
-                  label={field.label}
-                  keyboardType={keyboardType}
-                  placeholder={field.label}
-                  secureTextEntry={secureTextEntry}
-                  onChangeText={(value) => handleInputChange(field.name, value, field)}
-                  value={formValues[field.name] || ''}
-                />
-                {formErrors[field.name] ? (
-                  <Text style={styles.errorText}>{formErrors[field.name]}</Text>
-                ) : null}
-              </View>
+             <CustomInput key={field.name} name={field.name} control={control} placeholder={field.label} />
             );
           case 'select':
             return (
-              <View key={field.name || index} style={styles.fieldContainer}>
-                <SelectField
-                  label={field.label}
-                  options={options || []}
-                  selectedValue={formValues[field.name] || ''}
-                  onValueChange={(value) => handleInputChange(field.name, value, field)}
-                  setParentScrollEnabled={setParentScrollEnabled} // Pass the prop to SelectField
-                />
-                {formErrors[field.name] ? (
-                  <Text style={styles.errorText}>{formErrors[field.name]}</Text>
-                ) : null}
-              </View>
+             <CustomSelect name={field.name} label={field.label} control={control} placeholder={field.label} options={options}/>
             );
           case 'file':
             return (
-              <View key={field.name || index} style={styles.fieldContainer}>
-                <FileInputField
-                  label={field.label}
-                  onImageSelected={(uri) => handleInputChange(field.name, uri, field)}
-                  fileValue={formValues[field.name]||''}
-                />
-                {formErrors[field.name] ? (
-                  <Text style={styles.errorText}>{formErrors[field.name]}</Text>
-                ) : null}
-              </View>
+              <CustomImageSelector label={field.label}/>
             );
           case 'date':
             return (
-              <View key={field.name || index} style={styles.fieldContainer}>
-                <DatePickerField
-                  label={field.label}
-                  onChange={(value) => handleInputChange(field.name, value, field)}
-                  value={formValues[field.name] || ''}
-                />
-                {formErrors[field.name] ? (
-                  <Text style={styles.errorText}>{formErrors[field.name]}</Text>
-                ) : null}
-              </View>
+              <CustomDatePicker label={field.label}/>
             );
           case 'radio':
             return (
-              <View key={field.name || index} style={styles.fieldContainer}>
-                <RadioField
-                  options={field.options || []}
-                  selectedValue={formValues[field.name] || 'Father'} // Set the default radio button value
-                  textValue={formValues[`${field.label}`] || ''} // Handle text input value if any
-                  onButtonPress={(value: string) => handleInputChange(field.name, value, field)} // Update radio button value
-                  onChangeText={(value: string) => handleInputChange(`${field.label}`, value, field)} // Update text input value
-                />
-                {formErrors[field.name] ? (
-                  <Text style={styles.errorText}>{formErrors[field.name]}</Text>
-                ) : null}
-              </View>
+              <CustomRadioButton options={options} selectedValue={'Father'} onValueChange={function (value: string): void {
+                throw new Error('Function not implemented.');
+              } }/>
             );
           default:
             return null;
@@ -200,13 +164,9 @@ const FormContainer: React.FC<FormContainerProps> = ({
 
 const styles = StyleSheet.create({
   formContainer: {
-    borderWidth: 2,
-    borderColor: '#fff',
-    borderStyle: 'solid',
-    borderRadius: 5,
-    width: '90%',
+    width: '100%',
     alignSelf: 'center',
-    padding: 20,
+    gap:5
   },
   errorText: {
     color: 'red',

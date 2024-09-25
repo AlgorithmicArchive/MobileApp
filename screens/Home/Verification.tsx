@@ -4,6 +4,7 @@ import { useNavigation, useTheme } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useUserType } from '../../UserTypeContext';
 import  Constants  from 'expo-constants';
+import Button from '../../components/Button';
 
 
 
@@ -43,18 +44,8 @@ const Verification = () => {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {showOptions ? (
         <View style={styles.optionsContainer}>
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary }]}
-            onPress={() => handleOptionSelect('OTP')}
-          >
-            <Text style={[styles.buttonText, { color: colors.background }]}>Verify with OTP</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary }]}
-            onPress={() => handleOptionSelect('BackupCode')}
-          >
-            <Text style={[styles.buttonText, { color: colors.background }]}>Verify with Backup Code</Text>
-          </TouchableOpacity>
+          <Button name='Verify with OTP' onPress={()=>handleOptionSelect('OTP')}/>
+          <Button name='Verify with Backup Code' onPress={()=>handleOptionSelect('BackupCode')}/>
         </View>
       ) : (
         <View style={styles.inputContainer}>
@@ -68,12 +59,7 @@ const Verification = () => {
             value={input}
             onChangeText={setInput}
           />
-          <TouchableOpacity
-            style={[styles.submitButton, { backgroundColor: colors.primary }]}
-            onPress={handleSubmit}
-          >
-            <Text style={[styles.submitButtonText, { color: colors.background }]}>Submit</Text>
-          </TouchableOpacity>
+          <Button name='Submit' onPress={handleSubmit}/>
         </View>
       )}
     </View>
@@ -91,6 +77,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     width: '100%',
+    gap:5
   },
   button: {
     padding: 16,
@@ -110,7 +97,7 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 50,
-    width: '80%',
+    width: '100%',
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 16,

@@ -61,3 +61,14 @@ export async function fetchServiceContent(setServiceName:any,setGeneralForm:any,
     }
   }
   
+
+  export async function fetchService() {
+    try {
+      const response = await fetch(`${serverUrl}/User/GetServiceContent`);
+      const result = await response.json();
+      const elements = JSON.parse(result.formElement);
+      return elements;
+    } catch (error) {
+      console.error('Error fetching service content:', error);
+    }
+  }

@@ -1,23 +1,22 @@
-import React,{ useState }  from 'react';
+import React, { useState } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { NavigationContainer, useNavigation, useTheme } from '@react-navigation/native';
 import HomeTabs from '../navigations/HomeTabs';
-import { DarkTheme, LightTheme } from '../themes';
+import { SunsetLagoon, LightTheme } from '../themes';
 import SettingsScreen from '../screens/SettingsScreen';
 import Verification from '../screens/Home/Verification';
 import UserTabs from '../navigations/UserTabs';
 import OfficerTabs from '../navigations/OfficerTabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
-
 import { StackNavigationProp } from '@react-navigation/stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useUserType } from '../UserTypeContext';
+import ServiceForm from '../screens/User/ServiceForm';
 import Form from '../screens/User/Form';
 
 const Stack = createNativeStackNavigator();
 
-
+// Header Component that uses theme
 const Header = () => {
   const { colors } = useTheme();
   const navigation = useNavigation<StackNavigationProp<any>>();
@@ -32,43 +31,43 @@ const Header = () => {
   );
 };
 
-
-
+// App Navigator Component
 const AppNavigator = () => {
-    const [isDarkMode, setIsDarkMode] = useState(true); // Manage theme state here
-    const toggleTheme = () => setIsDarkMode(!isDarkMode);
-    const { userType } = useUserType();
+  const [isDarkMode, setIsDarkMode] = useState(true); // Manage theme state here
+  const toggleTheme = () => setIsDarkMode(!isDarkMode);
+  const { userType } = useUserType();
 
+  // Use useTheme here
+  const theme = isDarkMode ? SunsetLagoon : LightTheme;
   return (
-    <NavigationContainer theme={isDarkMode ? DarkTheme : LightTheme}>
+    <NavigationContainer theme={theme}>
       <Header />
       <Stack.Navigator>
         {userType ? (
           <>
-           <Stack.Screen
+            <Stack.Screen
               name="Tabs"
               options={{ headerShown: false }}
             >
-              {() => userType == "Citizen"?<UserTabs  />:<OfficerTabs />}
+              {() => userType === 'Citizen' ? <UserTabs /> : <OfficerTabs />}
             </Stack.Screen>
-          
           </>
         ) : (
           <>
-          <Stack.Screen
-            name="HomeTabs"
-            options={{ headerShown: false }}
-            component={HomeTabs}
-          />
-           <Stack.Screen name='Verification' options={{headerShown:false}}>
-            {()=><Verification />}
-           </Stack.Screen>
+            <Stack.Screen
+              name="HomeTabs"
+              options={{ headerShown: false }}
+              component={HomeTabs}
+            />
+            <Stack.Screen name="Verification" options={{ headerShown: false }}>
+              {() => <Verification />}
+            </Stack.Screen>
           </>
         )}
         <Stack.Screen name="Settings">
-              {() => <SettingsScreen toggleTheme={toggleTheme} />}
+          {() => <SettingsScreen toggleTheme={toggleTheme} />}
         </Stack.Screen>
-        <Stack.Screen name='Form' component={Form} options={{headerShown:false}} />
+        <Stack.Screen name="Form" component={Form} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -77,15 +76,14 @@ const AppNavigator = () => {
 export default AppNavigator;
 
 const styles = StyleSheet.create({
-    container: {
-      padding: 50,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent:'center',
-      gap:25
-    },
-    text: {
-      fontSize: 20,
-    },
-  });
-  
+  container: {
+    padding: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 25,
+  },
+  text: {
+    fontSize: 20,
+  },
+});

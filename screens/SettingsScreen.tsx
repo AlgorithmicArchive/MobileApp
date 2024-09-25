@@ -5,7 +5,6 @@ import { StackNavigationProp } from '@react-navigation/stack';
 
 const SettingsScreen = ({ toggleTheme }: { toggleTheme: () => void }) => {
   const { colors } = useTheme();
-const navigation = useNavigation<StackNavigationProp<any>>();
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Text style={[styles.text, { color: colors.text }]}>Settings Screen</Text>

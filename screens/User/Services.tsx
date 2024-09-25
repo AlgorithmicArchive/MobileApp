@@ -3,8 +3,8 @@ import { View, Text, ActivityIndicator, Alert } from 'react-native';
 import { useThemedStyles } from '../../styles/styles';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import Constants from 'expo-constants';
-import DynamicTable from '../../components/Table';
 import { StackNavigationProp } from '@react-navigation/stack';
+import CustomTable from '../../components/CustomTable';
 interface ServicesProps {}
 
 const Services = (props: ServicesProps) => {
@@ -60,7 +60,8 @@ const Services = (props: ServicesProps) => {
 
   return (
     <View style={[containerStyles.fullScreen, { backgroundColor: colors.background, width: '100%' }]}>
-      <DynamicTable columns={columns} data={data} onButtonPress={handleFunction}/>
+      {/* <DynamicTable columns={columns} data={data} onButtonPress={handleFunction}/> */}
+      <CustomTable columns={columns} data={data} onButtonPress={handleFunction}/>
     </View>
   );
 };

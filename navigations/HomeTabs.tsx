@@ -8,19 +8,34 @@ import { useTheme } from '@react-navigation/native';
 interface HomeTabsProps {}
 
 const Tab = createBottomTabNavigator();
+
 const HomeTabs = (props: HomeTabsProps) => {
-    const {colors} = useTheme();
+  const { colors } = useTheme(); // Access the theme colors
+
   return (
-    <Tab.Navigator screenOptions={{headerShown:false}}>
-        <Tab.Screen name='Home' component={Index} options={{tabBarIcon:()=>{
-            return <Ionicons name='home-outline' color={colors.primary} size={20}/>
-        }}}/>
-         <Tab.Screen name='Login' component={Login} options={{tabBarIcon:()=>{
-            return <Ionicons name='lock-closed-outline' color={colors.primary} size={20}/>
-        }}}/>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarStyle: { backgroundColor: colors.primary }, // Set tab bar background color
+        tabBarIcon: ({ color, size }) => {
+          let iconName: string = ''; // Set default value
+
+          if (route.name === 'Home') {
+            iconName = 'home-outline';
+          } else if (route.name === 'Login') {
+            iconName = 'log-in-outline';
+          }
+
+          return <Ionicons name={iconName} color={color} size={size} />;
+        },
+        tabBarActiveTintColor: colors.background, // Active tab icon color
+        tabBarInactiveTintColor: colors.text, // Inactive tab icon color
+      })}
+    >
+      <Tab.Screen name="Home" component={Index} />
+      <Tab.Screen name="Login" component={Login} />
     </Tab.Navigator>
   );
 };
 
 export default HomeTabs;
-

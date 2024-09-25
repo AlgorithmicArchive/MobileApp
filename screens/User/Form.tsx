@@ -15,6 +15,7 @@ import { Field } from '../../types'; // Import the Field interface
     duplicateAccountNumber,
     capitalizeAlphabets,
   } from '../../assets/functions/formvalidations'; // Adjust the path as necessary
+import { fetchServiceContent } from '../../assets/functions/fetch';
 
 interface FormProps {}
 
@@ -33,24 +34,7 @@ const Form: React.FC<FormProps> = (props) => {
   const [applicationId, setApplicationId] = useState<string>(''); // Assuming you have an application ID
 
   useEffect(() => {
-    async function fetchServiceContent() {
-      try {
-        const response = await fetch(`${serverUrl}/User/GetServiceContent`);
-        const result = await response.json();
-        const elements = JSON.parse(result.formElement);
-        setServiceName(result.serviceName);
-        setGeneralForm(elements[0].fields);
-        setPreAddressForm(elements[1].fields);
-        setPerAddressForm(elements[2].fields);
-        setBankForm(elements[3].fields); // Bank form fields
-        setDocuments(elements[4].fields); // Documents fields
-        setCurrentForm(elements[0].fields); // Initialize currentForm based on the first step
-      } catch (error) {
-        console.error('Error fetching service content:', error);
-      }
-    }
-
-    fetchServiceContent();
+    fetchServiceContent(setServiceName,setGeneralForm,setPreAddressForm,setPerAddressForm,setBankForm,setDocuments,setCurrentForm);
   }, [serverUrl]);
 
 

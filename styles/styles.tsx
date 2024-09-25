@@ -8,12 +8,13 @@ export const useThemedStyles = () => {
 
   const containerStyles = StyleSheet.create({
     fullScreen: {
-      padding: 10,
+      paddingHorizontal: 30,
       paddingTop: 50,
       backgroundColor: colors.background,
       height: '100%',
       justifyContent: 'center',
       alignItems: 'center',
+      width:'100%'
     },
     text:{
       color:colors.text
@@ -36,14 +37,12 @@ export const useThemedStyles = () => {
   const tableStyles = StyleSheet.create({
     container: {
       flex: 1,
-      padding: 10,
       width: '100%',
-      borderRadius:5,
     },
     header: {
       flexDirection: 'row',
       backgroundColor: colors.primary,
-      borderRadius:5,
+      borderWidth:0,
     },
     headerText: {
       width: '25%', // Adjust width as needed

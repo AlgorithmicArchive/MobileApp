@@ -4,26 +4,27 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { View, Text, Button, TouchableOpacity, StyleSheet } from 'react-native';
 import { useUserType } from '../UserTypeContext';
-import { containerStyles } from '../styles/styles';
+import { useThemedStyles } from '../styles/styles';
 
-const LogoutScreen = ( ) => {
- const navigation = useNavigation<StackNavigationProp<any>>();
- const { setUserType } = useUserType();
- const {colors} = useTheme();
+const LogoutScreen = () => {
+  const { containerStyles } = useThemedStyles();
+  const navigation = useNavigation<StackNavigationProp<any>>();
+  const { setUserType } = useUserType();
+  const { colors } = useTheme();
   const handleLogout = () => {
     setUserType(null);
-    navigation.navigate('Home'); 
+    navigation.navigate('Home');
   };
 
   return (
-    <View style={[containerStyles.fullScreen,{backgroundColor:colors.background}]}>
-      <Text style={{color:colors.text}}>Are you sure you want to Logout?</Text>
+    <View style={[containerStyles.fullScreen, { backgroundColor: colors.background }]}>
+      <Text style={{ color: colors.text }}>Are you sure you want to Logout?</Text>
       <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary }]}
-            onPress={handleLogout}
-          >
-            <Text style={[styles.buttonText, { color: colors.background }]}>Logout</Text>
-          </TouchableOpacity>
+        style={[styles.button, { backgroundColor: colors.primary }]}
+        onPress={handleLogout}
+      >
+        <Text style={[styles.buttonText, { color: colors.background }]}>Logout</Text>
+      </TouchableOpacity>
     </View>
   );
 };

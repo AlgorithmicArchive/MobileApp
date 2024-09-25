@@ -1,100 +1,87 @@
-import React,{useState} from 'react';
-import { Text, View, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { useNavigation, useTheme } from '@react-navigation/native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import React, { useState } from 'react';
+import { Text, View, StyleSheet, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import  Constants  from 'expo-constants';
+import Constants from 'expo-constants';
+import { useThemedStyles } from '../../styles/styles';
+import Button from '../../components/Button';
+import { useForm } from 'react-hook-form';
+import CustomInput from '../../components/FormComponents/CustomInput';  // Import custom component
 
-
+type FormData = {
+  username: string;
+  password: string;
+};
 
 const Login = () => {
-  const { colors } = useTheme();
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const { containerStyles } = useThemedStyles();
+  const [passwordVisible, setPasswordVisible] = useState(false);  // Password visibility state
   const navigation = useNavigation<StackNavigationProp<any>>();
-
-  const handleLogin =  async() =>{
-    const serverUrl = Constants.expoConfig?.extra?.SERVER_URL;
-    console.log("URL",serverUrl);
-    const formdata = new FormData();
-    formdata.append('Username',username);
-    formdata.append('Password',password);
-    formdata.append('formType','login');
-    const response = await fetch(`${serverUrl}/Home/Authentication`,{method:"post",body:formdata});
-    const result:any = await response.json();
-    if(result.status) navigation.navigate('Verification');
-    else Alert.alert("Error",result.response)
   
-  }
+  // Initialize useForm
+  const { control, handleSubmit, formState: { errors } } = useForm<FormData>();
+
+  const handleLogin = async (data: FormData) => {
+    const { username, password } = data;
+    const serverUrl = Constants.expoConfig?.extra?.SERVER_URL;
+    const formdata = new FormData();
+    formdata.append('Username', username);
+    formdata.append('Password', password);
+    formdata.append('formType', 'login');
+
+    try {
+      const response = await fetch(`${serverUrl}/Home/Authentication`, { method: "post", body: formdata });
+      const result: any = await response.json();
+      if (result.status) {
+        navigation.navigate('Verification');
+      } else {
+        Alert.alert("Error", result.response);
+      }
+    } catch (error) {
+      Alert.alert("Error", "Something went wrong");
+    }
+  };
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.innerContainer,{backgroundColor:colors.background,borderStyle:'solid',borderWidth:3,borderColor:colors.text}]}>
-        <Ionicons name="person-circle-outline" size={100} color={colors.text} />
-        <Text style={[styles.title, { color: colors.text }]}>Login</Text>
-        
-        <TextInput
-          placeholder="Username"
-          placeholderTextColor={colors.text}
-          style={[styles.input, { color: colors.text,borderColor: colors.text }]}
-          value={username}
-          onChangeText={setUsername}
-        />
-        
-        <TextInput
-          placeholder="Password"
-          placeholderTextColor={colors.text}
-          secureTextEntry
-          style={[styles.input, { color: colors.text,borderColor: colors.text }]}
-          value={password}
-          onChangeText={setPassword}
-        />
-        
-        <TouchableOpacity style={[styles.button, { backgroundColor: colors.text}]} onPress={handleLogin}>
-          <Text style={[styles.buttonText, { color: colors.background }]} >Login</Text>
-        </TouchableOpacity>
-      </View>
+    <View style={[containerStyles.fullScreen,{gap:20}]}>
+      <Text style={[{ color: containerStyles.text.color, fontSize: 36, fontWeight: 'bold', padding: 10 }]}>
+        Welcome Back
+      </Text>
+
+      {/* Username Input */}
+      <CustomInput
+        name="username"
+        control={control}
+        placeholder="Username"
+        rules={{ required: 'Username is required' }}
+        iconName="person-outline"
+        errors={errors}
+      />
+
+      {/* Password Input */}
+      <CustomInput
+        name="password"
+        control={control}
+        placeholder="Password"
+        secureTextEntry
+        showPasswordToggle
+        passwordVisible={passwordVisible}
+        togglePasswordVisibility={() => setPasswordVisible(!passwordVisible)}
+        iconName="lock-closed-outline"
+        rules={{ required: 'Password is required' }}
+        errors={errors}
+      />
+
+      {/* Login Button */}
+      <Button name='Login' onPress={handleSubmit(handleLogin)} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  innerContainer: {
-    width:'90%',
-    maxWidth: 400,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    padding: 10,
-    borderRadius: 10,
-    elevation: 5,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  input: {
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 15,
-    paddingHorizontal: 15,
-    fontSize: 16,
-  },
-  button: {
-    height: 50,
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
   },
 });
 

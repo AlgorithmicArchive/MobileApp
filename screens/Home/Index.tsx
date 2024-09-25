@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { Text, View, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { Text, View, Image } from 'react-native';
 import { useThemedStyles} from '../../styles/styles';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import Button from '../../components/Button';
 
 interface IndexProps {}
 
@@ -12,10 +13,8 @@ const Index = (props: IndexProps) => {
     const { containerStyles, buttonStyles } = useThemedStyles();
   return (
     <View style={[containerStyles.fullScreen,{backgroundColor:colors.background,gap:5}]}>
-      <Image source={require('../../assets/socialwelfare.jpg')} style={{width:300,height:300}} />
-      <TouchableOpacity style={buttonStyles.button} onPress={()=>navigation.navigate('Login')}>
-            <Text style={buttonStyles.buttonText}>Get Started</Text>
-          </TouchableOpacity>
+      <Image source={require('../../assets/socialwelfare.jpg')} style={{width:'100%',height:320,borderRadius:20}} />
+      <Button name='Get Started' onPress={()=>navigation.navigate('Login')}/>
     </View>
   );
 };
