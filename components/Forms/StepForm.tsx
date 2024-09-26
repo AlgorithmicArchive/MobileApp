@@ -8,21 +8,23 @@ import FormButtons from './FormButtons';
 interface StepFormProps {
   serviceName: string;
   currentForm: any[];
-  formValues: any;
-  formErrors: Record<string, string>;
+  control:any,
+  errors:any,
   handleInputChange: (label: string, value: string, field: any) => void;
+  handleSubmit: (callback: (data: any) => void) => (e?: React.BaseSyntheticEvent) => Promise<void>;
   step: number;
   handlePrevious: () => void;
-  handleNext: () => void;
+  handleNext: (data: any) => Promise<void>;
   canGoNext: boolean;
 }
 
 const StepForm: React.FC<StepFormProps> = ({
   serviceName,
   currentForm,
-  formValues,
-  formErrors,
+  control,
+  errors,
   handleInputChange,
+  handleSubmit,
   step,
   handlePrevious,
   handleNext,
@@ -38,12 +40,11 @@ const StepForm: React.FC<StepFormProps> = ({
         return (
           <FormContainer
             formElements={item.formElements}
-            formValues={formValues}
-            formErrors={formErrors}
             step={step}
             handleInputChange={handleInputChange}
             setParentScrollEnabled={setScrollEnabled} // Pass the scroll toggler
-          />
+            control={control} 
+            errors={errors}          />
         );
       case 'buttons':
         return (
@@ -52,6 +53,7 @@ const StepForm: React.FC<StepFormProps> = ({
             onPrevious={handlePrevious}
             onNext={handleNext}
             canGoNext={canGoNext}
+            handleSubmit={handleSubmit}
           />
         );
       default:

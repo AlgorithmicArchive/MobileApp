@@ -5,14 +5,23 @@ import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 interface FormButtonsProps {
   step: number;
   onPrevious: () => void;
-  onNext: () => void;
+  onNext: (data: any) => void; // Ensure it gets the validated form data
+  handleSubmit: (callback: (data: any) => void) => (e?: React.BaseSyntheticEvent) => Promise<void>;
   canGoNext: boolean;
 }
 
-const FormButtons: React.FC<FormButtonsProps> = ({ step, onPrevious, onNext, canGoNext }) => {
-    const {colors} =useTheme();
+const FormButtons: React.FC<FormButtonsProps> = ({ step, onPrevious, onNext, canGoNext, handleSubmit }) => {
+  const { colors } = useTheme();
+
+  // Wrap the onNext function in handleSubmit to ensure validation occurs first
+  const handleNextClick = (data: any) => {
+    console.log("Form submitted with data:", data); // Debug: Check what data is being passed to onNext
+    onNext(data); // Call the onNext function after successful validation
+  };
+
   return (
     <View style={styles.buttonContainer}>
+      {/* Previous Button */}
       <TouchableOpacity
         style={[styles.button, { backgroundColor: step === 0 ? 'gray' : colors.primary }]}
         onPress={onPrevious}
@@ -20,19 +29,24 @@ const FormButtons: React.FC<FormButtonsProps> = ({ step, onPrevious, onNext, can
       >
         <Text style={styles.buttonText}>Previous</Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.button, { backgroundColor: !canGoNext ? 'gray' : colors.primary }]}
-        onPress={onNext}
-        disabled={!canGoNext}
-      >
-        <Text style={styles.buttonText}>Next</Text>
-      </TouchableOpacity>
-      {step==4 && <TouchableOpacity
-        style={[styles.button, { backgroundColor: colors.primary }]}
-        onPress={onNext}
-      >
-        <Text style={styles.buttonText}>Submit</Text>
-      </TouchableOpacity>}
+
+      {/* Next or Submit Button */}
+      {step < 4 ? (
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: !canGoNext ? 'gray' : colors.primary }]}
+          onPress={handleSubmit(handleNextClick)} // Ensure validation and pass the callback
+          disabled={!canGoNext}
+        >
+          <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: colors.primary }]}
+          onPress={handleSubmit(handleNextClick)} // Use handleSubmit for the final submit button as well
+        >
+          <Text style={styles.buttonText}>Submit</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };

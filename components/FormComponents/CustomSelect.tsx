@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { Controller } from 'react-hook-form';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Picker } from '@react-native-picker/picker'; // Import Picker from the correct package
 
 interface Option {
@@ -17,7 +16,8 @@ interface CustomSelectProps {
   rules?: object;
   iconName?: string;
   errors?: any;
-  label: string; // New prop for the label
+  label: string;
+  onChange: (value: any) => void; // Passed down onChange handler
 }
 
 const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -26,9 +26,9 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   placeholder,
   options,
   rules,
-  iconName,
   errors,
-  label, // Destructure label prop
+  label,
+  onChange,
 }) => {
   return (
     <View style={{ width: '100%' }}>
@@ -37,19 +37,18 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         control={control}
         name={name}
         rules={rules}
-        render={({ field: { onChange, onBlur, value } }) => (
+        render={({ field: { onChange: formOnChange, value } }) => (
           <View style={styles.selectContainer}>
-            {iconName && <Ionicons name={iconName} size={20} color="#b0b0b0" style={styles.icon} />}
             <Picker
               selectedValue={value}
               onValueChange={(itemValue) => {
-                onChange(itemValue);
+                formOnChange(itemValue); // Update react-hook-form's value
+                onChange(itemValue); // Also trigger the passed onChange to update district
               }}
-              onBlur={onBlur}
               style={styles.picker}
-              prompt={placeholder} // Placeholder for iOS
+              prompt={placeholder}
             >
-              <Picker.Item label={placeholder} value="" />
+              <Picker.Item style={{ color: 'gray' }} label={'Select Option'} value="" />
               {options.map((option) => (
                 <Picker.Item key={option.value} label={option.label} value={option.value} />
               ))}
@@ -65,15 +64,11 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 const styles = StyleSheet.create({
   label: {
     fontSize: 14,
-    marginBottom: 5,
   },
   selectContainer: {
     backgroundColor: '#FFF',
     borderRadius: 10,
     elevation: 3,
-  },
-  icon: {
-    marginRight: 10,
   },
   picker: {
     height: 50,

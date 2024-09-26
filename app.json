@@ -11,8 +11,11 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "extra":{
-      "SERVER_URL":"http://10.149.88.35"
+    "extra": {
+      "SERVER_URL": "http://10.149.88.35",
+      "eas": {
+        "projectId": "70f23b85-72d7-4122-954c-b3ac30e583d9"
+      }
     },
     "ios": {
       "supportsTablet": true
@@ -21,7 +24,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.momin129.MobileApp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
