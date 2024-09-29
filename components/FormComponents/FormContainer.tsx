@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import CustomInput from '../FormComponents/CustomInput';
 import CustomSelect from '../FormComponents/CustomSelect';
-import CustomImageSelector from '../FormComponents/CustomImageSelector';
 import CustomDatePicker from '../FormComponents/CustomDatePicker';
 import CustomRadioButton from '../FormComponents/CustomRadioButton';
 import { Field } from '../../types';
-import { capitalizeAlphabets, validationMap } from '../../assets/functions/formvalidations';
+import { validationMap } from '../../assets/functions/formvalidations';
 import { fetchDistricts, fetchTehsils, fetchBlocks } from '../../assets/functions/fetch';
+import CustomFileSelector from './CustomFileSelector';
 
 interface FormContainerProps {
   formElements: Field[];
@@ -15,6 +15,7 @@ interface FormContainerProps {
   errors: any;
   step: number;
   handleInputChange: (name: string, value: string, field: Field) => void;
+  setValue:(name: string, value: any, config?: object) => void;
   setParentScrollEnabled: (enabled: boolean) => void;
 }
 
@@ -23,6 +24,7 @@ const FormContainer: React.FC<FormContainerProps> = ({
   control,
   errors,
   step,
+  setValue,
   handleInputChange,
 }) => {
   const [districtOptions, setDistrictOptions] = useState<{ label: string; value: any }[]>([]);
@@ -66,26 +68,30 @@ const FormContainer: React.FC<FormContainerProps> = ({
     }
   }, [selectedDistrict]);
 
-  const renderField = (field: Field) => {
-    const errorMessage = errors[field.name]?.message;
-
-    const runValidations = async (field: any, value: string): Promise<true | string> => {
-      if (!Array.isArray(field.validationFunctions)) return true;
   
-      // Apply the capitalization
-      const capitalizedValue = capitalizeAlphabets(field, value);
-      
-      // Run any additional validation functions after capitalization
+
+
+  const renderField = (field: Field) => {
+
+    const runValidations = async (field: Field, value: string): Promise<true | string> => {
+      if (!Array.isArray(field.validationFunctions)) return true;
+    
       for (const validationFn of field.validationFunctions) {
         const validate = validationMap[validationFn];
         if (validate) {
-          const error = await validate(field, capitalizedValue || value);
-          if (error) return error;
+          const error = await validate(field, value || '');
+          
+          // Set the value conditionally for specific validations
+          if (validationFn === 'CapitalizeAlphabets') {
+            setValue(field.name, error);
+          } else if (error) {
+            return error;
+          }
         }
       }
-  
       return true;
     };
+    
     switch (field.type) {
       case 'text':
       case 'email':
@@ -110,7 +116,6 @@ const FormContainer: React.FC<FormContainerProps> = ({
           <View key={field.name} style={styles.fieldContainer}>
             <CustomSelect
               onChange={(value) => {
-                handleInputChange(field.name, value, field);
                 if (field.name.includes('District')) {
                   setSelectedDistrict(value); // Trigger fetching tehsils and blocks when district changes
                 }
@@ -128,7 +133,7 @@ const FormContainer: React.FC<FormContainerProps> = ({
       case 'file':
         return (
           <View key={field.name} style={styles.fieldContainer}>
-            <CustomImageSelector
+            <CustomFileSelector
               label={field.label}
               control={control}
               name={field.name}
@@ -154,12 +159,12 @@ const FormContainer: React.FC<FormContainerProps> = ({
           <View key={field.name} style={styles.fieldContainer}>
             <CustomRadioButton
               options={field.options?.map((opt) => ({ label: opt, value: opt })) || []}
-              selectedValue={'Father'}
-              onValueChange={(value) => handleInputChange(field.name, value, field)}
-            />
-            {errorMessage && typeof errorMessage === 'string' && (
-              <Text style={styles.errorText}>{errorMessage}</Text>
-            )}
+              control={control}
+              name={field.name}
+              rules={{ validate: (value: any) => runValidations(field, value) }}
+              errors={errors} 
+              defaultValue={'Father'}
+              />
           </View>
         );
       default:

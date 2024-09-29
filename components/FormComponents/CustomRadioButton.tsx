@@ -1,62 +1,82 @@
-import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import { Controller } from 'react-hook-form';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+interface RadioButtonOption {
+  label: string;
+  value: string 
+}
 
 interface CustomRadioButtonProps {
-  options: { label: string; value: string }[];
-  selectedValue: string;
-  onValueChange: (value: string) => void;
+  name: string;
+  control: any;
+  options: RadioButtonOption[];
+  rules?: object;
+  errors?: any;
+  defaultValue?: string  // Optional prop for default value
 }
 
 const CustomRadioButton: React.FC<CustomRadioButtonProps> = ({
+  name,
+  control,
   options,
-  selectedValue,
-  onValueChange,
+  rules,
+  errors,
+  defaultValue,
 }) => {
   return (
-    <View style={styles.container}>
-      {options.map(option => (
-        <TouchableOpacity
-          key={option.value}
-          style={styles.radioContainer}
-          onPress={() => onValueChange(option.value)}
-        >
-          <View style={styles.radioCircle}>
-            {selectedValue === option.value && <View style={styles.selectedRadio} />}
-          </View>
-          <Text style={styles.label}>{option.label}</Text>
-        </TouchableOpacity>
-      ))}
-    </View>
+    <Controller
+      control={control}
+      name={name}
+      rules={rules}
+      defaultValue={defaultValue || options[0]?.value} // Set default value to the first option's value if not provided
+      render={({ field: { onChange, value } }) => (
+        <View style={styles.container}>
+          {options.map((option) => (
+            <TouchableOpacity
+              key={option.value}
+              style={styles.radioButtonContainer}
+              onPress={() => onChange(option.value)}
+            >
+              <Ionicons
+                name={value.toLowerCase() === option.value.toLowerCase() ? 'radio-button-on-outline' : 'radio-button-off-outline'}
+                size={24}
+                color={value.toLowerCase() === option.value.toLowerCase() ? '#007bff' : '#b0b0b0'}
+                style={styles.icon}
+              />
+              <Text style={styles.label}>{option.label}</Text>
+            </TouchableOpacity>
+          ))}
+          {errors && errors[name] && (
+            <Text style={styles.errorText}>{errors[name]?.message}</Text>
+          )}
+        </View>
+      )}
+    />
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 20,
-  },
-  radioContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    width: '100%',
     marginVertical: 5,
   },
-  radioCircle: {
-    height: 20,
-    width: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#007AFF',
+  radioButtonContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
+    paddingVertical: 5,
   },
-  selectedRadio: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#007AFF',
+  icon: {
+    marginRight: 10,
   },
   label: {
     fontSize: 16,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    alignSelf: 'stretch',
   },
 });
 

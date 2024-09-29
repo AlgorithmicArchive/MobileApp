@@ -1,83 +1,92 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Button, FlatList } from 'react-native';
-import { useForm } from 'react-hook-form';
-import CustomInput from './CustomInput'; // Adjust the import path as needed
-import { fetchService } from '../../assets/functions/fetch';
-import { useThemedStyles } from '../../styles/styles';
+// StepForm.tsx
+import React, { useState } from 'react';
+import { FlatList, View, StyleSheet } from 'react-native';
+import FormContainer from '../../components/FormComponents/FormContainer';
+import ServiceName from './ServiceName';
+import FormButtons from './FormButtons';
 
-const StepForm = () => {
-  const { control, handleSubmit, formState: { errors } } = useForm();
-  const [formSections, setFormSections] = useState([]);
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const { containerStyles } = useThemedStyles();
+interface StepFormProps {
+  serviceName: string;
+  currentForm: any[];
+  control:any,
+  errors:any,
+  handleInputChange: (label: string, value: string, field: any) => void;
+  handleSubmit: (callback: (data: any) => void) => (e?: React.BaseSyntheticEvent) => Promise<void>;
+  step: number;
+  handlePrevious: () => void;
+  handleNext: (data: any) => Promise<void>;
+  setValue:(name: string, value: any, config?: object) => void;
+  canGoNext: boolean;
+}
 
-  useEffect(() => {
-    const loadFormSections = async () => {
-      const sections = await fetchService();
-      setFormSections(sections);
-    };
+const StepForm: React.FC<StepFormProps> = ({
+  serviceName,
+  currentForm,
+  control,
+  errors,
+  handleInputChange,
+  handleSubmit,
+  step,
+  handlePrevious,
+  handleNext,
+  setValue,
+  canGoNext,
+}) => {
+  const [scrollEnabled, setScrollEnabled] = useState(true); // State to toggle scroll in FlatList
 
-    loadFormSections();
-  }, []);
-
-  const onSubmit = (data) => {
-    console.log('Form Data:', data);
-    // Handle form data submission
+  const renderItem = ({ item }: { item: any }) => {
+    switch (item.type) {
+      case 'serviceName':
+        return <ServiceName name={item.value} />;
+      case 'formContainer':
+        return (
+          <FormContainer
+            formElements={item.formElements}
+            step={step}
+            handleInputChange={handleInputChange}
+            setParentScrollEnabled={setScrollEnabled} // Pass the scroll toggler
+            control={control} 
+            setValue={setValue}
+            errors={errors}          />
+        );
+      case 'buttons':
+        return (
+          <FormButtons
+            step={step}
+            onPrevious={handlePrevious}
+            onNext={handleNext}
+            canGoNext={canGoNext}
+            handleSubmit={handleSubmit}
+          />
+        );
+      default:
+        return null;
+    }
   };
 
-  const handleNext = () => {
-    setCurrentSectionIndex((prev) => Math.min(prev + 1, formSections.length - 1));
-  };
-
-  const handleBack = () => {
-    setCurrentSectionIndex((prev) => Math.max(prev - 1, 0));
-  };
-
-  const togglePasswordVisibility = () => {
-    setPasswordVisible((prev) => !prev);
-  };
-
-  if (!formSections.length) {
-    return <Text>Loading...</Text>;
-  }
-
-  const currentSection = formSections[currentSectionIndex];
+  // Preparing data for FlatList
+  const data = [
+    { id: '1', type: 'serviceName', value: serviceName },
+    { id: '2', type: 'formContainer', formElements: currentForm },
+    { id: '3', type: 'buttons' },
+  ];
 
   return (
-    <View style={{ width: '100%', flex: 1, padding: 10 }}>
-      <Text style={{ fontSize: 18, marginBottom: 10 }}>{currentSection.section}</Text>
-      <FlatList
-        data={currentSection.fields}
-        renderItem={({ item }) => (
-          <CustomInput
-            key={item.name}
-            name={item.name}
-            control={control}
-            placeholder={item.label}
-            rules={item.rules}  // Pass validation rules if available
-            iconName={item.iconName}  // Optional: Pass icon name if specified
-            secureTextEntry={item.secureTextEntry}  // Optional: For password fields
-            showPasswordToggle={item.showPasswordToggle}  // Optional: For password fields
-            passwordVisible={passwordVisible}  // Pass visibility state
-            togglePasswordVisibility={togglePasswordVisibility}  // Pass toggle function
-            errors={errors}  // Pass errors for validation
-            keyboardType={item.keyboardType}  // Optional: Pass keyboard type if specified
-          />
-        )}
-        keyExtractor={(item) => item.name}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 20 }} // Add padding to the bottom
-      />
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-        <Button title="Back" onPress={handleBack} disabled={currentSectionIndex === 0} />
-        <Button title="Next" onPress={handleNext} disabled={currentSectionIndex === formSections.length - 1} />
-        {currentSectionIndex === formSections.length - 1 && (
-          <Button title="Submit" onPress={handleSubmit(onSubmit)} />
-        )}
-      </View>
-    </View>
+    <FlatList
+      data={data}
+      keyExtractor={(item) => item.id}
+      renderItem={renderItem}
+      contentContainerStyle={styles.flatListContent}
+      scrollEnabled={scrollEnabled} // Control scroll based on state
+    />
   );
 };
+
+const styles = StyleSheet.create({
+  flatListContent: {
+    flexGrow: 1,
+    padding: 16,
+  },
+});
 
 export default StepForm;

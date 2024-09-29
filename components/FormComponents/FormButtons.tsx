@@ -15,7 +15,6 @@ const FormButtons: React.FC<FormButtonsProps> = ({ step, onPrevious, onNext, can
 
   // Wrap the onNext function in handleSubmit to ensure validation occurs first
   const handleNextClick = (data: any) => {
-    console.log("Form submitted with data:", data); // Debug: Check what data is being passed to onNext
     onNext(data); // Call the onNext function after successful validation
   };
 

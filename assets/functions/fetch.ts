@@ -1,9 +1,9 @@
 import Constants from 'expo-constants';
-const serverUrl = Constants.expoConfig?.extra?.SERVER_URL;
+const { SERVER_URL } = Constants.expoConfig?.extra || {};
 
 export const fetchDistricts = async () => {
     try {
-      const response = await fetch(`${serverUrl}/Base/GetDistricts`);
+      const response = await fetch(`${SERVER_URL}/Base/GetDistricts`);
       const data = await response.json();
       if (data.status) {
         return data.districts;
@@ -20,7 +20,7 @@ export const fetchDistricts = async () => {
 
 export const fetchTehsils = async (districtId:number) => {
   try {
-    const response = await fetch(`${serverUrl}/Base/GetTeshilForDistrict?districtId=${districtId}`);
+    const response = await fetch(`${SERVER_URL}/Base/GetTeshilForDistrict?districtId=${districtId}`);
     const data = await response.json();
     return data.tehsils;
     // return data.tehsils.map((tehsil: any) => ({ label: tehsil.tehsilName, value: tehsil.tehsilId }));
@@ -32,7 +32,7 @@ export const fetchTehsils = async (districtId:number) => {
 
 export const fetchBlocks = async (districtId:number) => {
   try {
-    const response = await fetch(`${serverUrl}/Base/GetBlockForDistrict?districtId=${districtId}`);
+    const response = await fetch(`${SERVER_URL}/Base/GetBlockForDistrict?districtId=${districtId}`);
     const data = await response.json();
     return data.blocks;
     // return data.blocks.map((block: any) => ({ label: block.blockName, value: block.blockId }));
@@ -44,12 +44,13 @@ export const fetchBlocks = async (districtId:number) => {
 
 
 
-export async function fetchServiceContent(setServiceName:any,setGeneralForm:any,setPreAddressForm:any,setPerAddressForm:any,setBankForm:any,setDocuments:any,setCurrentForm:any) {
+export async function fetchServiceContent(setServiceName:any,setGeneralForm:any,setPreAddressForm:any,setPerAddressForm:any,setBankForm:any,setDocuments:any,setCurrentForm:any,setServiceId:any) {
     try {
-      const response = await fetch(`${serverUrl}/User/GetServiceContent`);
+      const response = await fetch(`${SERVER_URL}/User/GetServiceContent`);
       const result = await response.json();
       const elements = JSON.parse(result.formElement);
       setServiceName(result.serviceName);
+      setServiceId(result.serviceId)
       setGeneralForm(elements[0].fields);
       setPreAddressForm(elements[1].fields);
       setPerAddressForm(elements[2].fields);
@@ -64,11 +65,26 @@ export async function fetchServiceContent(setServiceName:any,setGeneralForm:any,
 
   export async function fetchService() {
     try {
-      const response = await fetch(`${serverUrl}/User/GetServiceContent`);
+      const response = await fetch(`${SERVER_URL}/User/GetServiceContent`);
       const result = await response.json();
       const elements = JSON.parse(result.formElement);
       return elements;
     } catch (error) {
       console.error('Error fetching service content:', error);
+    }
+  }
+
+  export async function fetchAcknowledgement(setData:any,setLoading:any) {
+    try {
+      const response = await fetch(`${SERVER_URL}/User/GetAcknowledgement`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+      const result = await response.json(); // Assuming result is a dictionary like { "KEY": "VALUE" }
+      setData(result); // Set the fetched data to state
+    } catch (error) {
+      console.error('Error fetching acknowledgement details:', error);
+    } finally {
+      setLoading(false); // Stop loading indicator
     }
   }

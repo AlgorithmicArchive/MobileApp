@@ -3,7 +3,6 @@ import { Field } from "../../types";
 // Validation functions
 
 export const notEmpty = (field: Field, value: string): string | null => {
-  console.log("VALUE",value);
   if (typeof value==='string' && value.trim() === "") {
     return "This field is required.";
   }
@@ -187,15 +186,15 @@ export const duplicateAccountNumber = async (
   return null;
 };
 
-export const capitalizeAlphabets = (
+export const CapitalizeAlphabets = (
   field: Field, 
   value: string, 
   applicationId?: string
-): string | null => {
+): string  => {
   if (typeof value === 'string') {
     return value.toUpperCase();
   }
-  return null; // Return null if value is not a string
+  return value; // Return null if value is not a string
 };
 
 
@@ -210,5 +209,5 @@ export const validationMap: Record<string, (field: Field, value: string, applica
   isEmailValid,
   isDateWithinRange,
   duplicateAccountNumber,
-  capitalizeAlphabets,
+  CapitalizeAlphabets,
 };

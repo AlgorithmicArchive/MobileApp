@@ -28,11 +28,11 @@ const Verification = () => {
   };
 
   const handleSubmit = async() => {
-    const serverUrl = Constants.expoConfig?.extra?.SERVER_URL;
+    const { SERVER_URL } = Constants.expoConfig?.extra || {};
     const formdata = new FormData();
     formdata.append("otp",inputType=="OTP"?input:'');
     formdata.append("backupCode",inputType=="BackupCode"?input:'');
-    const response = await fetch(`${serverUrl}/Home/Verification`,{method:'post',body:formdata});
+    const response = await fetch(`${SERVER_URL}/Home/Verification`,{method:'post',body:formdata});
     const result = await response.json();
     console.log(result);
     setUserType(result.userType)

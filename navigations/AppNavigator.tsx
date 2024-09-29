@@ -11,8 +11,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useUserType } from '../UserTypeContext';
-import ServiceForm from '../screens/User/ServiceForm';
 import Form from '../screens/User/Form';
+import AcknowledgementScreen from '../screens/User/Acknowledgement';
 
 const Stack = createNativeStackNavigator();
 
@@ -68,6 +68,7 @@ const AppNavigator = () => {
           {() => <SettingsScreen toggleTheme={toggleTheme} />}
         </Stack.Screen>
         <Stack.Screen name="Form" component={Form} options={{ headerShown: false }} />
+        <Stack.Screen name="Acknowledgement" component={AcknowledgementScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

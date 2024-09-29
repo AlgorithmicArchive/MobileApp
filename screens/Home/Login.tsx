@@ -23,14 +23,14 @@ const Login = () => {
 
   const handleLogin = async (data: FormData) => {
     const { username, password } = data;
-    const serverUrl = Constants.expoConfig?.extra?.SERVER_URL;
+    const { SERVER_URL } = Constants.expoConfig?.extra || {};
     const formdata = new FormData();
     formdata.append('Username', username);
     formdata.append('Password', password);
     formdata.append('formType', 'login');
 
     try {
-      const response = await fetch(`${serverUrl}/Home/Authentication`, { method: "post", body: formdata });
+      const response = await fetch(`${SERVER_URL}/Home/Authentication`, { method: "post", body: formdata });
       const result: any = await response.json();
       if (result.status) {
         navigation.navigate('Verification');

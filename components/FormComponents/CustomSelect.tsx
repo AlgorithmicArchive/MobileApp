@@ -37,7 +37,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         control={control}
         name={name}
         rules={rules}
-        render={({ field: { onChange: formOnChange, value } }) => (
+        render={({ field: { onChange: formOnChange, value ,onBlur} }) => (
           <View style={styles.selectContainer}>
             <Picker
               selectedValue={value}
@@ -45,6 +45,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                 formOnChange(itemValue); // Update react-hook-form's value
                 onChange(itemValue); // Also trigger the passed onChange to update district
               }}
+              onBlur={onBlur}
               style={styles.picker}
               prompt={placeholder}
             >

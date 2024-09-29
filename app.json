@@ -11,14 +11,10 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "extra": {
-      "SERVER_URL": "http://10.149.88.35",
-      "eas": {
-        "projectId": "70f23b85-72d7-4122-954c-b3ac30e583d9"
-      }
-    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "usesIcloudStorage": true,
+      "bundleIdentifier": "com.momin129.MobileApp" 
     },
     "android": {
       "adaptiveIcon": {
@@ -29,6 +25,14 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-document-picker",
+        {
+          "iCloudContainerEnvironment": "Production" 
+        }
+      ]
+    ]
   }
 }

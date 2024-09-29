@@ -1,5 +1,6 @@
 // types.ts
 export interface Field {
+    isFormSpecific: boolean;
     name: string;
     label: string;
     type: string;
