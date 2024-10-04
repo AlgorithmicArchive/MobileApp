@@ -8,7 +8,7 @@ import CustomTable from '../../components/CustomTable';
 interface ServicesProps {}
 
 const Services = (props: ServicesProps) => {
-  const [columns, setColumns] = useState([{"title": "S.No."}, {"title": "Service Name"}, {"title": "Department"}, {"title": "Action"}]);
+  const [columns, setColumns] = useState([]);
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true); // Add a loading state
   const [error, setError] = useState<string | null>(null); // Add an error state

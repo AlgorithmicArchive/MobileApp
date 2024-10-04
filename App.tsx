@@ -1,4 +1,3 @@
-import { useState } from "react";
 import AppNavigator from "./navigations/AppNavigator";
 import { UserTypeProvider } from "./UserTypeContext";
 

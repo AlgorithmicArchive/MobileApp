@@ -13,6 +13,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useUserType } from '../UserTypeContext';
 import Form from '../screens/User/Form';
 import AcknowledgementScreen from '../screens/User/Acknowledgement';
+import ApplicationStatus from '../screens/User/ApplicationStatus';
 
 const Stack = createNativeStackNavigator();
 
@@ -69,6 +70,7 @@ const AppNavigator = () => {
         </Stack.Screen>
         <Stack.Screen name="Form" component={Form} options={{ headerShown: false }} />
         <Stack.Screen name="Acknowledgement" component={AcknowledgementScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="ApplicationStatus" component={ApplicationStatus} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

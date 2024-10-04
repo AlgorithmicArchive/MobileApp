@@ -1,7 +1,7 @@
 import { useTheme } from '@react-navigation/native';
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, SafeAreaView } from 'react-native';
-import Button from './Button';
+import CutomButton from './CustomButton';
 
 interface TableRowProps {
   data: string[];
@@ -21,7 +21,7 @@ const TableRow: React.FC<TableRowProps> = React.memo(({ data, background, color,
 
       // Check if the parsed value is an object
       if (typeof parsed === 'object' && parsed !== null) {
-        content = <Button name='View' onPress={() => onButtonPress(parsed.parameters)} />;
+        content = <CutomButton name={parsed.buttonText} onPress={() => onButtonPress(parsed.parameters)} />;
       } else {
         content = <Text style={[styles.cellText, { color }]}>{cell}</Text>;
       }

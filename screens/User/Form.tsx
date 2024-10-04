@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import Constants from 'expo-constants';
 import StepForm from '../../components/FormComponents/StepForm';
 import { Field } from '../../types';

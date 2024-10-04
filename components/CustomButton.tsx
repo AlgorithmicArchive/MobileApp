@@ -1,14 +1,13 @@
 import { useTheme } from '@react-navigation/native';
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, GestureResponderEvent } from 'react-native';
-import { color } from 'react-native-elements/dist/helpers';
 
 interface ButtonProps {
   name: string; // The label for the button
   onPress?: (event: GestureResponderEvent) => void; // Optional function to handle onPress event
 }
 
-const Button: React.FC<ButtonProps> = ({ name, onPress }) => {
+const CutomButton: React.FC<ButtonProps> = ({ name, onPress }) => {
     const {colors} = useTheme();
   return (
     <TouchableOpacity
@@ -35,4 +34,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Button;
+export default CutomButton;

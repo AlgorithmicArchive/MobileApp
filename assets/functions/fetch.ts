@@ -74,6 +74,21 @@ export async function fetchServiceContent(setServiceName:any,setGeneralForm:any,
     }
   }
 
+  export async function fetchApplicationStatus(setColumns:any,setData:any,setError:any,setLoading:any) {
+    try {
+      const response = await fetch(`${SERVER_URL}/User/GetApplicationStatus?type=ApplicationStatus&start=0&length=10`);
+      const result = await response.json();
+      setColumns(result.obj.columns);
+      setData(result.obj.data);
+    } catch (error) {
+      setError(error.message)
+      console.error('Error fetching service content:', error);
+    }
+    finally{
+      setLoading(false);
+    }
+  }
+
   export async function fetchAcknowledgement(setData:any,setLoading:any) {
     try {
       const response = await fetch(`${SERVER_URL}/User/GetAcknowledgement`);

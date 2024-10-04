@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Constants from 'expo-constants';
 import { useThemedStyles } from '../../styles/styles';
-import Button from '../../components/Button';
+import CutomButton from '../../components/CustomButton';
 import { useForm } from 'react-hook-form';
 import CustomInput from '../../components/FormComponents/CustomInput';  // Import custom component
 
@@ -73,7 +73,7 @@ const Login = () => {
       />
 
       {/* Login Button */}
-      <Button name='Login' onPress={handleSubmit(handleLogin)} />
+      <CutomButton name='Login' onPress={handleSubmit(handleLogin)} />
     </View>
   );
 };

@@ -4,7 +4,7 @@ import { useNavigation, useTheme } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useUserType } from '../../UserTypeContext';
 import  Constants  from 'expo-constants';
-import Button from '../../components/Button';
+import CutomButton from '../../components/CustomButton';
 
 
 
@@ -44,8 +44,8 @@ const Verification = () => {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {showOptions ? (
         <View style={styles.optionsContainer}>
-          <Button name='Verify with OTP' onPress={()=>handleOptionSelect('OTP')}/>
-          <Button name='Verify with Backup Code' onPress={()=>handleOptionSelect('BackupCode')}/>
+          <CutomButton name='Verify with OTP' onPress={()=>handleOptionSelect('OTP')}/>
+          <CutomButton name='Verify with Backup Code' onPress={()=>handleOptionSelect('BackupCode')}/>
         </View>
       ) : (
         <View style={styles.inputContainer}>
@@ -59,7 +59,7 @@ const Verification = () => {
             value={input}
             onChangeText={setInput}
           />
-          <Button name='Submit' onPress={handleSubmit}/>
+          <CutomButton name='Submit' onPress={handleSubmit}/>
         </View>
       )}
     </View>
