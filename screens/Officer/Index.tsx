@@ -6,6 +6,7 @@ import CustomCard from '../../components/CustomCard';
 import Constants from 'expo-constants';
 import CustomSelect from '../../components/FormComponents/CustomSelect';
 import { useForm } from 'react-hook-form';
+import CustomTable from '../../components/CustomTable';
 
 interface IndexProps {}
 
@@ -13,10 +14,14 @@ const Index = (props: IndexProps) => {
   const { SERVER_URL } = Constants.expoConfig?.extra || {};
   const { colors } = useTheme();
   const [serviceList, setServiceList] = useState<any[]>([]);
+  const [serviceId,setServiceId] = useState(0);
   const [cardVisible, setCarVisible] = useState(false);
   const [canSanction, setCanSanction] = useState(false);
   const [canForward, setCanForward] = useState(false);
   const [count, setCount] = useState({ pending: 0, forward: 0, reject: 0, return: 0, sanction: 0 });
+  const [columns,setColumns] = useState([]);
+  const [data,setData] = useState([]);
+
 
   const { control, setValue } = useForm<any>();
   const { containerStyles } = useThemedStyles();
@@ -41,12 +46,38 @@ const Index = (props: IndexProps) => {
     fetchServiceList();
   }, []);
 
+
+const handleViewApplication = (applicationId:string)=>{
+  console.log("Viewed Application",applicationId);
+}
+
+const handlePullApplication = (applicationId:string) =>{
+  console.log("Pulled Application",applicationId);
+}
+
+const handleApplication = (applicationId:string,type:string)=>{
+    type=="View" ? handleViewApplication(applicationId):handlePullApplication(applicationId)
+}
+
+
+  const handleCardChoice = async(type:string,count:number) =>{
+    if(count==0) Alert.alert("Reponse","No Records for this.")
+    else{
+      const result = await fetch(`${SERVER_URL}/Officer/Applications?type=${type}&start=0&length=10&serviceId=${serviceId}`);
+      const data = await result.json();
+      let list;
+      if(type=="Pending") list = data.applicationList.pendingList;
+      setColumns(list.columns);
+      setData(list.data);
+      console.log(list);
+    }
+  }
+
   const handleServiceChange = async (selectedValue: any) => {
     try {
       const result = await fetch(`${SERVER_URL}/Officer/GetApplicationsList?ServiceId=${selectedValue}`);
+      setServiceId(selectedValue);
       const data = await result.json();
-      console.log('Application Data', data.countList);
-
       // Update the state with the data from countList
       setCount({
         pending: data.countList.pending,
@@ -67,7 +98,7 @@ const Index = (props: IndexProps) => {
   };
 
   return (
-    <>
+    <ScrollView contentContainerStyle={styles.scrollViewContainer} nestedScrollEnabled>
       <View style={containerStyles.fullScreen}>
         <CustomSelect
           name={'service'}
@@ -81,69 +112,68 @@ const Index = (props: IndexProps) => {
           }}
         />
         {cardVisible ? (
-          <ScrollView contentContainerStyle={{ flexGrow: 1 }} style={{ marginTop: 20 }}>
-            <View style={[containerStyles.fullScreen, { backgroundColor: colors.background }]}>
-              {/* Card Container for proper alignment */}
-              <View style={styles.cardContainer}>
-                {/* Pending Applications Card */}
-                <CustomCard
-                  bgColor="#FFC107"
-                  textColor="#000"
-                  title="Pending Applications"
-                  icon="hourglass-outline"
-                  value={count.pending}
-                  onPress={() => Alert.alert('Pending Applications', `Pending: ${count.pending}`)}
-                />
+          <View style={[containerStyles.fullScreen, { backgroundColor: colors.background }]}>
+            {/* Card Container for proper alignment */}
+            <View style={styles.cardContainer}>
+              {/* Pending Applications Card */}
+              <CustomCard
+                bgColor="#FFC107"
+                textColor="#000"
+                title="Pending Applications"
+                icon="hourglass-outline"
+                value={count.pending}
+                onPress={() => handleCardChoice("Pending",count.pending)}
+              />
 
-                {/* Rejected Applications Card */}
+              {/* Rejected Applications Card */}
+              <CustomCard
+                bgColor="#DC3545"
+                textColor="#FFF"
+                title="Rejected Applications"
+                icon="close-circle-outline"
+                value={count.reject}
+                onPress={() => handleCardChoice("Reject",count.reject)}
+              />
+
+              {/* Returned Applications Card */}
+              <CustomCard
+                bgColor="#FD7E14"
+                textColor="#FFF"
+                title="Returned Applications"
+                icon="arrow-undo-outline"
+                value={count.return}
+                onPress={() => handleCardChoice("Return",count.return)}
+              />
+
+              {/* Forwarded Applications Card - Show only if `canForward` is true */}
+              {canForward && (
                 <CustomCard
-                  bgColor="#DC3545"
+                  bgColor="#007BFF"
                   textColor="#FFF"
-                  title="Rejected Applications"
-                  icon="close-circle-outline"
-                  value={count.reject}
-                  onPress={() => Alert.alert('Rejected Applications', `Rejected: ${count.reject}`)}
+                  title="Forwarded Applications"
+                  icon="arrow-forward-outline"
+                  value={count.forward}
+                  onPress={() => handleCardChoice("Forward",count.forward)}
                 />
+              )}
 
-                {/* Returned Applications Card */}
+              {/* Sanctioned Applications Card - Show only if `canSanction` is true */}
+              {canSanction && (
                 <CustomCard
-                  bgColor="#FD7E14"
+                  bgColor="#28A745"
                   textColor="#FFF"
-                  title="Returned Applications"
-                  icon="arrow-undo-outline"
-                  value={count.return}
-                  onPress={() => Alert.alert('Returned Applications', `Returned: ${count.return}`)}
+                  title="Sanctioned Applications"
+                  icon="checkmark-done-outline"
+                  value={count.sanction}
+                  onPress={() => handleCardChoice("Sanction",count.sanction)}
                 />
-
-                {/* Forwarded Applications Card - Show only if `canForward` is true */}
-                {canForward && (
-                  <CustomCard
-                    bgColor="#007BFF"
-                    textColor="#FFF"
-                    title="Forwarded Applications"
-                    icon="arrow-forward-outline"
-                    value={count.forward}
-                    onPress={() => Alert.alert('Forwarded Applications', `Forwarded: ${count.forward}`)}
-                  />
-                )}
-
-                {/* Sanctioned Applications Card - Show only if `canSanction` is true */}
-                {canSanction && (
-                  <CustomCard
-                    bgColor="#28A745"
-                    textColor="#FFF"
-                    title="Sanctioned Applications"
-                    icon="checkmark-done-outline"
-                    value={count.sanction}
-                    onPress={() => Alert.alert('Sanctioned Applications', `Sanctioned: ${count.sanction}`)}
-                  />
-                )}
-              </View>
+              )}
             </View>
-          </ScrollView>
+            {columns.length!=0&&<CustomTable columns={columns} data={data} onButtonPress={handleApplication}/>}
+          </View>
         ) : null}
       </View>
-    </>
+    </ScrollView>
   );
 };
 
@@ -151,11 +181,15 @@ export default Index;
 
 // StyleSheet for Index Component
 const styles = StyleSheet.create({
+  scrollViewContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    width:'100%',
+  },
   cardContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',  // Enable wrapping of cards
     justifyContent: 'space-between',
-    width:'100%',  // Space between cards
+    width: '100%',  // Space between cards
   },
 });
-
