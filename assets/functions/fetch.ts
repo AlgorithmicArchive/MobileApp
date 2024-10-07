@@ -16,8 +16,6 @@ export const fetchDistricts = async () => {
     }
   };
 
-// fetch.ts
-
 export const fetchTehsils = async (districtId:number) => {
   try {
     const response = await fetch(`${SERVER_URL}/Base/GetTeshilForDistrict?districtId=${districtId}`);
@@ -42,8 +40,6 @@ export const fetchBlocks = async (districtId:number) => {
   }
 };
 
-
-
 export async function fetchServiceContent(setServiceName:any,setGeneralForm:any,setPreAddressForm:any,setPerAddressForm:any,setBankForm:any,setDocuments:any,setCurrentForm:any,setServiceId:any) {
     try {
       const response = await fetch(`${SERVER_URL}/User/GetServiceContent`);
@@ -61,7 +57,6 @@ export async function fetchServiceContent(setServiceName:any,setGeneralForm:any,
       console.error('Error fetching service content:', error);
     }
   }
-  
 
   export async function fetchService() {
     try {
@@ -103,3 +98,66 @@ export async function fetchServiceContent(setServiceName:any,setGeneralForm:any,
       setLoading(false); // Stop loading indicator
     }
   }
+
+
+export async function fetchApplicationDetails(applicationId:string,setGeneralDetails:any,setPreAddressDetails:any,setPerAddressDetails:any,setBankDetails:any,setDocumnets:any,setServiceContent:any,setCurrentOfficer:any,setPreviousActions:any) {
+  try {
+    const response = await fetch(`${SERVER_URL}/Officer/GetApplicationDetails?ApplicationId=${applicationId[0]}`);
+    const result = await response.json();
+    const bankDetails = JSON.parse(result.generalDetails.bankDetails);
+    const documents = JSON.parse(result.generalDetails.documents);
+    setGeneralDetails(prevDetails => ({
+      ...prevDetails, // Keep existing values in case some are not present in the response
+      applicantionId: result.generalDetails.applicationId,
+      applicantImage: result.generalDetails.applicantImage,
+      applicantName: result.generalDetails.applicantName,
+      email: result.generalDetails.email,
+      relation: result.generalDetails.relation,
+      relationName: result.generalDetails.relationName,
+      serviceSpecific: result.generalDetails.serviceSpecific,
+      dateOfBirth: result.generalDetails.dateOfBirth,
+      category: result.generalDetails.category,
+      submissionDate: result.generalDetails.submissionDate,
+    }));
+    
+    setPreAddressDetails(prevDetails=>({
+      ...prevDetails,
+      address:result.preAddressDetails.address,
+      district:result.preAddressDetails.district,
+      tehsil:result.preAddressDetails.tehsil,
+      block:result.preAddressDetails.block,
+      panchayatMuncipality:result.preAddressDetails.panchayatMuncipality,
+      village:result.preAddressDetails.village,
+      pincode:result.preAddressDetails.pincode,
+    }));
+
+    setPerAddressDetails(prevDetails=>({
+      ...prevDetails,
+      address:result.perAddressDetails.address,
+      district:result.perAddressDetails.district,
+      tehsil:result.perAddressDetails.tehsil,
+      block:result.perAddressDetails.block,
+      panchayatMuncipality:result.perAddressDetails.panchayatMuncipality,
+      village:result.perAddressDetails.village,
+      pincode:result.perAddressDetails.pincode,
+    }));
+
+    setBankDetails(prev=>({
+      bankName:bankDetails.BankName,
+      branchName:bankDetails.BranchName,
+      ifscCode:bankDetails.IfscCode,
+      accountNumber:bankDetails.AccountNumber
+    }))
+
+    setDocumnets(documents);
+    setServiceContent(result.serviceContent)
+    setCurrentOfficer(result.currentOfficer);
+    setPreviousActions(result.previousActions)
+    console.log(result.previousActions);
+
+  } catch (error) {
+    console.error('Error fetching service content:', error);
+  }
+  finally{
+  }
+}

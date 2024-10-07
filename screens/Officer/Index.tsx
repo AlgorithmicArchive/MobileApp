@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, Alert, ScrollView, StyleSheet } from 'react-native';
-import { useTheme } from '@react-navigation/native';
+import { View, Alert, ScrollView, StyleSheet } from 'react-native';
+import { useNavigation, useTheme } from '@react-navigation/native';
 import { useThemedStyles } from '../../styles/styles';
 import CustomCard from '../../components/CustomCard';
 import Constants from 'expo-constants';
 import CustomSelect from '../../components/FormComponents/CustomSelect';
 import { useForm } from 'react-hook-form';
 import CustomTable from '../../components/CustomTable';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 interface IndexProps {}
 
@@ -21,6 +22,8 @@ const Index = (props: IndexProps) => {
   const [count, setCount] = useState({ pending: 0, forward: 0, reject: 0, return: 0, sanction: 0 });
   const [columns,setColumns] = useState([]);
   const [data,setData] = useState([]);
+
+  const navigation = useNavigation<StackNavigationProp<any>>();
 
 
   const { control, setValue } = useForm<any>();
@@ -48,7 +51,7 @@ const Index = (props: IndexProps) => {
 
 
 const handleViewApplication = (applicationId:string)=>{
-  console.log("Viewed Application",applicationId);
+  navigation.navigate('UserDetails',{applicationId});
 }
 
 const handlePullApplication = (applicationId:string) =>{
@@ -69,7 +72,6 @@ const handleApplication = (applicationId:string,type:string)=>{
       if(type=="Pending") list = data.applicationList.pendingList;
       setColumns(list.columns);
       setData(list.data);
-      console.log(list);
     }
   }
 
