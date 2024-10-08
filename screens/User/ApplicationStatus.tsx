@@ -23,7 +23,7 @@ const ApplicationStatus = (props: ApplicationStatusProps) => {
   }
 
     useEffect(() => {
-    fetchApplicationStatus(setColumns,setData,setError,setLoading);
+    fetchApplicationStatus(setColumns,setData,setError,setLoading,"ApplicationStatus");
     }, []); // Empty dependency array ensures this runs only once
 
     if (loading) {
@@ -36,7 +36,6 @@ const ApplicationStatus = (props: ApplicationStatusProps) => {
 
   return (
     <View style={[containerStyles.fullScreen, { backgroundColor: colors.background, width: '100%' }]}>
-      {/* <DynamicTable columns={columns} data={data} onButtonPress={handleFunction}/> */}
       <CustomTable columns={columns} data={data} onButtonPress={handleFunction}/>
       <TimelineModal
         visible={isModalVisible}

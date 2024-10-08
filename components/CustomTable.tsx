@@ -12,22 +12,20 @@ interface TableRowProps {
 }
 
 const TableRow: React.FC<TableRowProps> = React.memo(({ data, background, color, cellWidth, onButtonPress }) => {
-  const {colors} = useTheme();
-  // Memoize the rendering of cell content to avoid unnecessary re-rendering
+  const { colors } = useTheme();
+
   const renderCellContent = (cell: string) => {
     let content;
 
     try {
       const parsed = JSON.parse(cell);
 
-      // Check if the parsed value is an object
       if (typeof parsed === 'object' && parsed !== null) {
-        content = <CustomButton name={parsed.buttonText} onPress={() => onButtonPress(parsed.parameters,parsed.buttonText)} />;
+        content = <CustomButton name={parsed.buttonText} onPress={() => onButtonPress(parsed.parameters, parsed.buttonText)} />;
       } else {
         content = <Text style={[styles.cellText, { color }]}>{cell}</Text>;
       }
     } catch (error) {
-      // Fallback to rendering the cell as plain text if parsing fails
       content = <Text style={[styles.cellText, { color }]}>{cell}</Text>;
     }
 
@@ -37,7 +35,7 @@ const TableRow: React.FC<TableRowProps> = React.memo(({ data, background, color,
   return (
     <View style={[styles.row, { backgroundColor: background }]}>
       {data.map((cell, index) => (
-        <View key={index} style={[styles.cell, { width: cellWidth,borderColor:colors.primary }]}>
+        <View key={index} style={[styles.cell, { width: cellWidth, borderColor: colors.primary }]}>
           {renderCellContent(cell)}
         </View>
       ))}
@@ -54,10 +52,8 @@ interface CustomTableProps {
 const CustomTable: React.FC<CustomTableProps> = ({ columns, data, onButtonPress }) => {
   const { colors } = useTheme();
 
-  // Memoize the column headers to avoid re-rendering
   const columnHeaders = useMemo(() => columns.map((col) => col), [columns]);
 
-  // Set a fixed cell width (You can customize this based on your content)
   const cellWidth = 120;
 
   return (
@@ -73,20 +69,37 @@ const CustomTable: React.FC<CustomTableProps> = ({ columns, data, onButtonPress 
             onButtonPress={onButtonPress}
           />
 
-          {/* Render the table data */}
-          <FlatList
-            data={data}
-            keyExtractor={(_, index) => index.toString()}
-            renderItem={({ item }) => (
-              <TableRow
-                data={item}
-                onButtonPress={onButtonPress}
-                color={colors.text}
-                background={colors.background}
-                cellWidth={cellWidth}
-              />
-            )}
-          />
+          {/* Check if data is empty and render "No records" row */}
+          {data.length === 0 ? (
+            <View style={styles.row}>
+              <View
+                style={[
+                  styles.cell,
+                  {
+                    width: cellWidth * columns.length, // Span across all columns
+                    justifyContent: 'center',
+                    borderColor: colors.primary,
+                  },
+                ]}
+              >
+                <Text style={[styles.cellText, { color: colors.text }]}>No records available</Text>
+              </View>
+            </View>
+          ) : (
+            <FlatList
+              data={data}
+              keyExtractor={(_, index) => index.toString()}
+              renderItem={({ item }) => (
+                <TableRow
+                  data={item}
+                  onButtonPress={onButtonPress}
+                  color={colors.text}
+                  background={colors.background}
+                  cellWidth={cellWidth}
+                />
+              )}
+            />
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -7,7 +7,6 @@ import { useNavigation } from '@react-navigation/native'; // Import useNavigatio
 import { fetchServiceContent } from '../../assets/functions/fetch';
 import * as FileSystem from 'expo-file-system'; // Import FileSystem to handle file reading
 import { StackNavigationProp } from '@react-navigation/stack';
-import { addressDummyData, bankdummyDetails, generalDummyData } from '../../assets/functions/dummyData';
 
 const Form: React.FC = () => {
   const { SERVER_URL } = Constants.expoConfig?.extra || {};

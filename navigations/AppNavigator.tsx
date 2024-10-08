@@ -15,6 +15,7 @@ import Form from '../screens/User/Form';
 import AcknowledgementScreen from '../screens/User/Acknowledgement';
 import ApplicationStatus from '../screens/User/ApplicationStatus';
 import UserDetails from '../screens/Officer/UserDetails';
+import IncompleteApplications from '../screens/User/IncompleteApplications';
 
 const Stack = createNativeStackNavigator();
 
@@ -72,6 +73,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Form" component={Form} options={{ headerShown: false }} />
         <Stack.Screen name="Acknowledgement" component={AcknowledgementScreen} options={{ headerShown: false }} />
         <Stack.Screen name="ApplicationStatus" component={ApplicationStatus} options={{ headerShown: false }} />
+        <Stack.Screen name="IncompleteApplications" component={IncompleteApplications} options={{ headerShown: false }} />
         <Stack.Screen name = "UserDetails" component={UserDetails} options={{headerShown:false}} />
       </Stack.Navigator>
     </NavigationContainer>

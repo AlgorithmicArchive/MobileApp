@@ -24,7 +24,7 @@ const WebViewModal = ({ documentUrl, visible, onClose }: { documentUrl: string, 
       return (
         <WebView
         source={{
-          uri: `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(SERVER_URL + documentUrl)}`,
+          uri: `${SERVER_URL + documentUrl}`,
         }}
         style={styles.webView}
         startInLoadingState={true}

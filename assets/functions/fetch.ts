@@ -69,9 +69,9 @@ export async function fetchServiceContent(setServiceName:any,setGeneralForm:any,
     }
   }
 
-  export async function fetchApplicationStatus(setColumns:any,setData:any,setError:any,setLoading:any) {
+  export async function fetchApplicationStatus(setColumns:any,setData:any,setError:any,setLoading:any,type:string) {
     try {
-      const response = await fetch(`${SERVER_URL}/User/GetApplicationStatus?type=ApplicationStatus&start=0&length=10`);
+      const response = await fetch(`${SERVER_URL}/User/GetApplicationStatus?type=${type}&start=0&length=10`);
       const result = await response.json();
       let col = result.obj.columns;
       col = col.map((obj: { title: any; })=>obj.title)

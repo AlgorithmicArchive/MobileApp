@@ -1,6 +1,6 @@
-// app.config.ts
-import 'dotenv/config'; // Import dotenv/config to load environment variables
-import { ExpoConfig, ConfigContext } from '@expo/config'; // Import types for Expo config
+import 'dotenv/config'; // Ensure dotenv is configured correctly
+import { ExpoConfig, ConfigContext } from '@expo/config';
+
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -16,8 +16,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     backgroundColor: '#ffffff'
   },
   extra: {
-    SERVER_URL: process.env.SERVER_URL || 'http://localhost:3000', // Default value if SERVER_URL is not set
-    API_KEY: process.env.API_KEY || 'default-api-key', // Default value if API_KEY is not set
+    SERVER_URL: process.env.SERVER_URL || 'http://localhost:3000',
+    API_KEY: process.env.API_KEY || 'default-api-key',
     eas: {
       projectId: '70f23b85-72d7-4122-954c-b3ac30e583d9'
     }
