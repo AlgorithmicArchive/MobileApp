@@ -25,6 +25,7 @@ const OfficerTabs = () => {
   return (
     <>
       <Tab.Navigator
+        detachInactiveScreens={true}
         screenOptions={({ route }) => ({
           headerShown: false,
           tabBarStyle: { backgroundColor: colors.primary }, // Set background color of tab bar
@@ -48,7 +49,7 @@ const OfficerTabs = () => {
           },
         })}
       >
-        <Tab.Screen name="Home" component={Index} />
+        <Tab.Screen name="Home" component={Index} options={{unmountOnBlur:true}} />
         <Tab.Screen name="Reports" component={Reports} />
         {/* Use a separate component for Status screen */}
         <Tab.Screen

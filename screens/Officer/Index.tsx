@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { View, Alert, ScrollView, StyleSheet } from 'react-native';
-import { useNavigation, useTheme } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useTheme } from '@react-navigation/native';
 import { useThemedStyles } from '../../styles/styles';
 import CustomCard from '../../components/CustomCard';
 import Constants from 'expo-constants';
@@ -15,19 +15,21 @@ const Index = (props: IndexProps) => {
   const { SERVER_URL } = Constants.expoConfig?.extra || {};
   const { colors } = useTheme();
   const [serviceList, setServiceList] = useState<any[]>([]);
-  const [serviceId,setServiceId] = useState(0);
+  const [serviceId, setServiceId] = useState(0);
   const [cardVisible, setCarVisible] = useState(false);
   const [canSanction, setCanSanction] = useState(false);
   const [canForward, setCanForward] = useState(false);
   const [count, setCount] = useState({ pending: 0, forward: 0, reject: 0, return: 0, sanction: 0 });
-  const [columns,setColumns] = useState([]);
-  const [data,setData] = useState([]);
+  const [columns, setColumns] = useState([]);
+  const [data, setData] = useState([]);
 
   const navigation = useNavigation<StackNavigationProp<any>>();
 
-
   const { control, setValue } = useForm<any>();
   const { containerStyles } = useThemedStyles();
+
+  // Create a ref for the ScrollView
+  const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     const fetchServiceList = async () => {
@@ -49,33 +51,49 @@ const Index = (props: IndexProps) => {
     fetchServiceList();
   }, []);
 
+  useFocusEffect(
+    useCallback(()=>{
+      if(scrollViewRef.current){
+        scrollViewRef.current.scrollTo({ y: 0, animated: true });
+      }
+    },[])
+  )
 
-const handleViewApplication = (applicationId:string)=>{
-  navigation.navigate('UserDetails',{applicationId});
-}
+  const handleViewApplication = (applicationId: string) => {
+    navigation.navigate('UserDetails', { applicationId });
+  };
 
-const handlePullApplication = (applicationId:string) =>{
-  console.log("Pulled Application",applicationId);
-}
+  const handlePullApplication = (applicationId: string) => {
+    console.log('Pulled Application', applicationId);
+  };
 
-const handleApplication = (applicationId:string,type:string)=>{
-    type=="View" ? handleViewApplication(applicationId):handlePullApplication(applicationId)
-}
+  const handleApplication = (applicationId: string, type: string) => {
+    type == 'View' ? handleViewApplication(applicationId) : handlePullApplication(applicationId);
+  };
 
-
-  const handleCardChoice = async(type:string,count:number) =>{
-    if(count==0) Alert.alert("Reponse","No Records for this.")
-    else{
-      const result = await fetch(`${SERVER_URL}/Officer/Applications?type=${type}&start=0&length=10&serviceId=${serviceId}`);
+  const handleCardChoice = async (type: string, count: number) => {
+    if (count == 0) Alert.alert('Response', 'No Records for this.');
+    else {
+      console.log('Type', type);
+      if (type == 'Forward' || type == 'return') type = 'Sent';
+      const result = await fetch(
+        `${SERVER_URL}/Officer/Applications?type=${type}&start=0&length=10&serviceId=${serviceId}`
+      );
       const data = await result.json();
       let list;
-      if(type=="Pending") list = data.applicationList.pendingList;
+      if (type == 'Pending') list = data.applicationList.pendingList;
+      else if (type == 'Sent') list = data.applicationList.sentList;
       let col = list.columns;
-      col = col.map((obj: { title: any; })=>obj.title)
+      col = col.map((obj: { title: any }) => obj.title);
       setColumns(col);
       setData(list.data);
+
+      // Scroll to the CustomTable after setting the columns and data
+      if (scrollViewRef.current) {
+        scrollViewRef.current.scrollTo({ y: 500, animated: true }); // Adjust 'y' value as per your requirement
+      }
     }
-  }
+  };
 
   const handleServiceChange = async (selectedValue: any) => {
     try {
@@ -102,7 +120,7 @@ const handleApplication = (applicationId:string,type:string)=>{
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollViewContainer} nestedScrollEnabled>
+    <ScrollView ref={scrollViewRef} contentContainerStyle={styles.scrollViewContainer} nestedScrollEnabled>
       <View style={containerStyles.fullScreen}>
         <CustomSelect
           name={'service'}
@@ -126,7 +144,7 @@ const handleApplication = (applicationId:string,type:string)=>{
                 title="Pending Applications"
                 icon="hourglass-outline"
                 value={count.pending}
-                onPress={() => handleCardChoice("Pending",count.pending)}
+                onPress={() => handleCardChoice('Pending', count.pending)}
               />
 
               {/* Rejected Applications Card */}
@@ -136,7 +154,7 @@ const handleApplication = (applicationId:string,type:string)=>{
                 title="Rejected Applications"
                 icon="close-circle-outline"
                 value={count.reject}
-                onPress={() => handleCardChoice("Reject",count.reject)}
+                onPress={() => handleCardChoice('Reject', count.reject)}
               />
 
               {/* Returned Applications Card */}
@@ -146,7 +164,7 @@ const handleApplication = (applicationId:string,type:string)=>{
                 title="Returned Applications"
                 icon="arrow-undo-outline"
                 value={count.return}
-                onPress={() => handleCardChoice("Return",count.return)}
+                onPress={() => handleCardChoice('Return', count.return)}
               />
 
               {/* Forwarded Applications Card - Show only if `canForward` is true */}
@@ -157,7 +175,7 @@ const handleApplication = (applicationId:string,type:string)=>{
                   title="Forwarded Applications"
                   icon="arrow-forward-outline"
                   value={count.forward}
-                  onPress={() => handleCardChoice("Forward",count.forward)}
+                  onPress={() => handleCardChoice('Forward', count.forward)}
                 />
               )}
 
@@ -169,11 +187,13 @@ const handleApplication = (applicationId:string,type:string)=>{
                   title="Sanctioned Applications"
                   icon="checkmark-done-outline"
                   value={count.sanction}
-                  onPress={() => handleCardChoice("Sanction",count.sanction)}
+                  onPress={() => handleCardChoice('Sanction', count.sanction)}
                 />
               )}
             </View>
-            {columns.length!=0&&<CustomTable columns={columns} data={data} onButtonPress={handleApplication}/>}
+            {columns.length != 0 && (
+              <CustomTable columns={columns} data={data} onButtonPress={handleApplication} />
+            )}
           </View>
         ) : null}
       </View>
@@ -188,12 +208,12 @@ const styles = StyleSheet.create({
   scrollViewContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    width:'100%',
+    width: '100%',
   },
   cardContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',  // Enable wrapping of cards
+    flexWrap: 'wrap', // Enable wrapping of cards
     justifyContent: 'space-between',
-    width: '100%',  // Space between cards
+    width: '100%', // Space between cards
   },
 });

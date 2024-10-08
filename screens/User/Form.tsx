@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native'; // Import useNavigatio
 import { fetchServiceContent } from '../../assets/functions/fetch';
 import * as FileSystem from 'expo-file-system'; // Import FileSystem to handle file reading
 import { StackNavigationProp } from '@react-navigation/stack';
+import { addressDummyData, bankdummyDetails, generalDummyData } from '../../assets/functions/dummyData';
 
 const Form: React.FC = () => {
   const { SERVER_URL } = Constants.expoConfig?.extra || {};
@@ -265,6 +266,8 @@ const Form: React.FC = () => {
   const handlePrevious = () => {
     setStep((prev) => Math.max(0, prev - 1));
   };
+
+
 
   const canGoNext = step < 4;
 

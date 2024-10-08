@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { fetchApplicationDetails } from '../../assets/functions/fetch';
 import { useThemedStyles } from '../../styles/styles';
 import { Image } from 'react-native-elements';
 import Constants from 'expo-constants';
-import { useTheme } from '@react-navigation/native';
+import { useNavigation, useTheme } from '@react-navigation/native';
 import WebViewModal from '../../components/WebViewModal';
 import CustomSelect from '../../components/FormComponents/CustomSelect';
 import { useForm } from 'react-hook-form';
@@ -12,6 +12,8 @@ import CustomTable from '../../components/CustomTable';
 import CutomButton from '../../components/CustomButton';
 import CustomInput from '../../components/FormComponents/CustomInput';
 import CustomFileSelector from '../../components/FormComponents/CustomFileSelector';
+import * as FileSystem from 'expo-file-system';
+import { StackNavigationProp } from '@react-navigation/stack';
 const { SERVER_URL } = Constants.expoConfig?.extra || {};
 
 // Define the type for generalDetail
@@ -63,11 +65,14 @@ const UserDetails = ({ route }) => {
   const [previousActions,setPreviousActions] = useState({columns:[],data:[]});
   const [documentUrl, setDocumentUrl] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
+  const [currentOfficer,setCurrentOfficer] = useState('');
+  const [serviceId,setServiceId] = useState('');
+  const [loading,setLoading] = useState(false);
 
   const { control, formState: { errors },getValues,watch } = useForm<any>({ mode: 'all', reValidateMode: 'onChange' });
-  const action = watch('action');
+  const action = watch('Action');
   const {colors} = useTheme();
-
+  const navigation = useNavigation<StackNavigationProp<any>>();
   const { applicationId } = route.params;
   const { containerStyles } = useThemedStyles();
 
@@ -76,10 +81,45 @@ const UserDetails = ({ route }) => {
     setModalVisible(true);
   }
 
-  const handleTakeAction = ()=>{
-    console.log("Form Data",getValues());
-  }
+  const handleTakeAction = async () => {
+    const formValues = getValues();
+    const formData = new FormData();
+  
+    // Append text fields
+    for (const [key, value] of Object.entries(formValues)) {
+      if (key !== 'ForwardFile') {
+        formData.append(key, value as string);
+      }else{
+        // Use FileSystem to get file information based on the URI
+        const fileInfo = await FileSystem.getInfoAsync(value as string);
+                
+        // Create a file object with URI, type, and name
+        const file = {
+          uri: value, // URI of the file
+          type: 'application/pdf', // Change this dynamically if needed based on the file type
+          name: fileInfo.uri.split('/').pop(), // Extract file name from URI
+        };
+        
+        console.log(`File Object for ${key}:`, file);
 
+        // Append the file to formData using the field name as the key
+        formData.append(key, file as any);
+      }
+    }
+    formData.append("ApplicationId",applicationId[0]);
+    formData.append("ServiceId",serviceId);
+    // Perform fetch or axios request with FormData
+    setLoading(true);
+    fetch(`${SERVER_URL}/Officer/HandleAction`, {
+      method: 'POST',
+      body: formData,
+    })
+    .then(res=>res.json())
+    .then(data=>{
+      setLoading(false);
+      if(data.status) navigation.navigate("Home");
+    });
+  };
 
   // Function to format keys for display
   const formatKey = (key: string): string => {
@@ -91,7 +131,7 @@ const UserDetails = ({ route }) => {
 
   // Fetch application details on component mount
   useEffect(() => {
-    fetchApplicationDetails(applicationId, setGeneralDetails,setPreAddressDetails,setPerAddressDetails,setBankDetails,setDocuments,setActionOptions,setPreviousActions);
+    fetchApplicationDetails(applicationId, setGeneralDetails,setPreAddressDetails,setPerAddressDetails,setBankDetails,setDocuments,setActionOptions,setPreviousActions,setCurrentOfficer,setServiceId);
   }, [applicationId]);
 
   // Helper function to render values safely within <Text> components
@@ -107,7 +147,7 @@ const UserDetails = ({ route }) => {
             if (!isNaN(serviceValue as number)) return null;
 
             return (
-              <View key={serviceKey} style={{ marginVertical: 5,flexDirection:'row',alignItems:'center',justifyContent:'space-between', borderWidth: 0, borderRadius: 5,borderColor: colors.primary,padding:5 }}>
+              <View key={serviceKey} style={{ marginVertical: 5,flexDirection:'row',alignItems:'center',justifyContent:'space-between', borderWidth: 1, borderRadius: 5,borderColor: colors.primary,padding:5 }}>
                 <Text style={{ fontWeight: 'bold',color:colors.primary }}>{formatKey(serviceKey)}:</Text>
                 <Text style={{ fontSize: 18,color:colors.text,padding: 5 }}>
                   {String(serviceValue)}
@@ -120,7 +160,7 @@ const UserDetails = ({ route }) => {
     } 
     else if(key == 'applicantImage'){
         return (
-            <View style={{ marginVertical: 5,flexDirection:'row',alignItems:'center',justifyContent:'space-between', borderWidth: 0, borderRadius: 5,borderColor: colors.primary,padding:5 }} key={key}>
+            <View style={{ marginVertical: 5,flexDirection:'row',alignItems:'center',justifyContent:'space-between', borderWidth: 1, borderRadius: 5,borderColor: colors.primary,padding:5 }} key={key}>
             <Text style={{ fontWeight: 'bold', fontSize: 16,color:colors.primary }}>
               {formatKey(key)}
             </Text>
@@ -136,7 +176,7 @@ const UserDetails = ({ route }) => {
     }
     else {
       return (
-        <View style={{ marginVertical: 5,flexDirection:'row',alignItems:'center',justifyContent:'space-between', borderWidth: 0, borderRadius: 5,borderColor: colors.primary,padding:5,flexWrap:key=="bankName"?'wrap':'nowrap' }} key={key}>
+        <View style={{ marginVertical: 5,flexDirection:'row',alignItems:'center',justifyContent:'space-between', borderWidth: 1, borderRadius: 5,borderColor: colors.primary,padding:5,flexWrap:key=="bankName"?'wrap':'nowrap' }} key={key}>
           <Text style={{ fontWeight: 'bold', fontSize: 16,color:colors.primary }}>{formatKey(key)}:</Text>
           <Text style={{ fontSize: 18,color:colors.text, padding: 5 }}>
             {String(value)}
@@ -155,6 +195,11 @@ const UserDetails = ({ route }) => {
             </Text>
         </View>
     )
+  }
+
+
+  if (loading) {
+    return <ActivityIndicator size="large" color={colors.primary} style={containerStyles.fullScreen} />;
   }
 
   return (
@@ -219,16 +264,16 @@ const UserDetails = ({ route }) => {
                 <Text style={{fontSize:14,fontWeight:'bold',color:colors.background}}>Action To Take</Text>
             </View>
             <View style={{padding:5,backgroundColor:colors.background,flexDirection:'column',gap:10}}>
-                <CustomSelect name={'action'} control={control} placeholder={'Choose Action'} options={actionOptions} label={'Choose Action'} onChange={()=>{}}/>
-                {action === "Forward" && (
+                <CustomSelect name={'Action'} control={control} placeholder={'Choose Action'} options={actionOptions} label={'Choose Action'} onChange={()=>{}}/>
+                {action === "Forward" && currentOfficer === "District Social Welfare Officer" && (
                   <CustomFileSelector
                     control={control}
                     label="Certificate by TSWO"
-                    name="certificate" // Ensure to give a unique name here
+                    name="ForwardFile" // Ensure to give a unique name here
                     errors={errors}
                   />
                 )}
-                <CustomInput name={'remarks'} control={control} placeholder={'Remarks'}/>
+                <CustomInput name={'Remarks'} control={control} placeholder={'Remarks'}/>
                 <CutomButton name={'Take Action'} onPress={handleTakeAction}/>
             </View>
         </View>

@@ -102,7 +102,7 @@ export async function fetchServiceContent(setServiceName:any,setGeneralForm:any,
   }
 
 
-export async function fetchApplicationDetails(applicationId:string,setGeneralDetails:any,setPreAddressDetails:any,setPerAddressDetails:any,setBankDetails:any,setDocumnets:any,setActionOptions,setPreviousActions:any) {
+export async function fetchApplicationDetails(applicationId:string,setGeneralDetails:any,setPreAddressDetails:any,setPerAddressDetails:any,setBankDetails:any,setDocumnets:any,setActionOptions,setPreviousActions:any,setCurrentOfficer:any,setServiceId:any) {
   try {
     const response = await fetch(`${SERVER_URL}/Officer/GetApplicationDetails?ApplicationId=${applicationId[0]}`);
     const result = await response.json();
@@ -152,7 +152,8 @@ export async function fetchApplicationDetails(applicationId:string,setGeneralDet
     }))
 
     setDocumnets(documents);
-
+    setCurrentOfficer(result.currentOfficer);
+    setServiceId(result.serviceContent.serviceId);
     const workForceOfficers = JSON.parse(result.serviceContent.workForceOfficers);
     let officer;
     let currentIndex;
