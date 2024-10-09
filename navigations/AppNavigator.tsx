@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { NavigationContainer, useNavigation, useTheme } from '@react-navigation/native';
 import HomeTabs from '../navigations/HomeTabs';
-import { SunsetLagoon, LightTheme } from '../themes';
+import { LightTheme, TwilightBlossom } from '../themes';
 import SettingsScreen from '../screens/SettingsScreen';
 import Verification from '../screens/Home/Verification';
 import UserTabs from '../navigations/UserTabs';
@@ -25,9 +25,9 @@ const Header = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.text, { color: colors.text }]}>Social Welfare</Text>
+      <Text style={[styles.text, { color: colors.primary }]}>Social Welfare</Text>
       <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
-        <Ionicons name="settings-outline" size={24} color={colors.text} />
+        <Ionicons name="settings-outline" size={24} color={colors.primary} />
       </TouchableOpacity>
     </View>
   );
@@ -40,7 +40,7 @@ const AppNavigator = () => {
   const { userType } = useUserType();
 
   // Use useTheme here
-  const theme = isDarkMode ? SunsetLagoon : LightTheme;
+  const theme = isDarkMode ? TwilightBlossom : LightTheme;
   return (
     <NavigationContainer theme={theme}>
       <Header />

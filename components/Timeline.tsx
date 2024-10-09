@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
-  FlatList,
   StyleSheet,
   TouchableOpacity,
   Modal,
@@ -10,7 +9,10 @@ import {
 } from 'react-native';
 
 import Constants from 'expo-constants';
+import { useTheme } from '@react-navigation/native';
+import CustomTable from './CustomTable';
 const { SERVER_URL } = Constants.expoConfig?.extra || {};
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface Phase {
   ReceivedOn: string;
@@ -27,10 +29,11 @@ interface TimelineModalProps {
 }
 
 const TimelineModal: React.FC<TimelineModalProps> = ({ visible, onClose, applicationId }) => {
-  const [phases, setPhases] = useState<Phase[]>([]);
+  const [columns,setColumns] = useState(["Date","Officer","Action Taken","Remarks"]);
+  const [data,setData] = useState<string[][]>([]);
   const [sanctioned, setSanctioned] = useState(false);
   const [returnedToEdit, setReturnedToEdit] = useState(false);
-
+  const {colors} = useTheme();
   useEffect(() => {
     // Fetch phases when the modal becomes visible
     if (visible) {
@@ -39,8 +42,9 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ visible, onClose, applica
           const res = await fetch(`${SERVER_URL}/User/GetPhases?ApplicationId=${applicationId}`);
           const data = await res.json();
           const parsedPhases: Phase[] = JSON.parse(data.phase);
-          setPhases(parsedPhases);
-
+          const tempColumns = ["ReceivedOn","Officer","ActionTaken","Remarks"];
+          const tempdata:string[][] = parsedPhases.map(obj=>tempColumns.map(key=>obj[key]));
+          setData(tempdata)
           // Determine if the application is sanctioned or returned to edit
           let isSanctioned = false;
           let isReturnedToEdit = false;
@@ -69,14 +73,6 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ visible, onClose, applica
     }
   }, [visible, applicationId]);
 
-  const renderPhaseItem = ({ item }: { item: Phase }) => (
-    <View style={styles.phaseRow}>
-      <Text style={styles.phaseCell}>{item.ReceivedOn}</Text>
-      <Text style={styles.phaseCell}>{item.Officer}</Text>
-      <Text style={styles.phaseCell}>{item.ActionTaken || 'Pending'}</Text>
-      <Text style={styles.phaseCell}>{item.Remarks}</Text>
-    </View>
-  );
 
   return (
     <Modal
@@ -86,35 +82,17 @@ const TimelineModal: React.FC<TimelineModalProps> = ({ visible, onClose, applica
       onRequestClose={onClose}
     >
       <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
+        <View style={[styles.modalContent,{backgroundColor:colors.card}]}>
           {/* Close Button */}
           <Pressable style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>X</Text>
+            <Ionicons name='close-circle-outline' color={colors.primary} size={30}/>
           </Pressable>
 
           {/* Display Application ID */}
-          <Text style={styles.applicationId}>Application Number: {applicationId}</Text>
+          <Text style={[styles.applicationId,{color:colors.primary}]}>Application Number: {applicationId}</Text>
 
           {/* Render Timeline with Border and Scrollability */}
-          {phases.length > 0 ? (
-            <FlatList
-              style={styles.flatList} // FlatList styling for border and height
-              contentContainerStyle={styles.flatListContent} // Container styling for items
-              data={phases}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={renderPhaseItem}
-              ListHeaderComponent={
-                <View style={styles.header}>
-                  <Text style={styles.headerCell}>Date</Text>
-                  <Text style={styles.headerCell}>Officer</Text>
-                  <Text style={styles.headerCell}>Action Taken</Text>
-                  <Text style={styles.headerCell}>Remarks</Text>
-                </View>
-              }
-            />
-          ) : (
-            <Text style={{ color: 'red', fontSize: 16 }}>No Phases Available</Text>
-          )}
+          <CustomTable columns={columns} data={data} onButtonPress={()=>{}} />
 
           {/* Action Buttons */}
           <View style={styles.statusButtons}>
@@ -161,7 +139,6 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '90%',
     height: '80%', // Increase height to allow scrollable content
-    backgroundColor: '#fff',
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
@@ -172,11 +149,10 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     fontSize: 18,
-    color: 'red',
     fontWeight: 'bold',
   },
   applicationId: {
-    fontSize: 18,
+    fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 16,
@@ -210,7 +186,6 @@ const styles = StyleSheet.create({
     maxHeight: '60%', // Limit height to allow scrolling if content is large
     width: '100%', // Full width for FlatList
     borderWidth: 1, // Add border around the FlatList
-    borderColor: '#007bff',
     borderRadius: 8,
   },
   flatListContent: {

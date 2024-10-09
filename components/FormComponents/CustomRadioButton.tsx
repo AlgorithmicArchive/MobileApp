@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import { Controller } from 'react-hook-form';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useTheme } from '@react-navigation/native';
 
 interface RadioButtonOption {
   label: string;
@@ -9,6 +10,7 @@ interface RadioButtonOption {
 }
 
 interface CustomRadioButtonProps {
+  label?:string,
   name: string;
   control: any;
   options: RadioButtonOption[];
@@ -18,6 +20,7 @@ interface CustomRadioButtonProps {
 }
 
 const CustomRadioButton: React.FC<CustomRadioButtonProps> = ({
+  label,
   name,
   control,
   options,
@@ -25,6 +28,7 @@ const CustomRadioButton: React.FC<CustomRadioButtonProps> = ({
   errors,
   defaultValue,
 }) => {
+  const {colors} = useTheme();
   return (
     <Controller
       control={control}
@@ -33,6 +37,7 @@ const CustomRadioButton: React.FC<CustomRadioButtonProps> = ({
       defaultValue={defaultValue || options[0]?.value} // Set default value to the first option's value if not provided
       render={({ field: { onChange, value } }) => (
         <View style={styles.container}>
+          <Text style={[styles.label,{color:colors.primary}]}>{label}</Text>
           {options.map((option) => (
             <TouchableOpacity
               key={option.value}
@@ -42,10 +47,10 @@ const CustomRadioButton: React.FC<CustomRadioButtonProps> = ({
               <Ionicons
                 name={value.toLowerCase() === option.value.toLowerCase() ? 'radio-button-on-outline' : 'radio-button-off-outline'}
                 size={24}
-                color={value.toLowerCase() === option.value.toLowerCase() ? '#007bff' : '#b0b0b0'}
+                color={value.toLowerCase() === option.value.toLowerCase() ? colors.primary : '#b0b0b0'}
                 style={styles.icon}
               />
-              <Text style={styles.label}>{option.label}</Text>
+              <Text style={[styles.label,{color:colors.text}]}>{option.label}</Text>
             </TouchableOpacity>
           ))}
           {errors && errors[name] && (

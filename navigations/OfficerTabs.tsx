@@ -28,8 +28,8 @@ const OfficerTabs = () => {
         screenOptions={({ route }) => ({
           headerShown: false,
           tabBarStyle: { backgroundColor: colors.primary }, // Set background color of tab bar
-          tabBarActiveTintColor: colors.background, // Active tab icon color
-          tabBarInactiveTintColor: colors.text, // Inactive tab icon color
+          tabBarActiveTintColor: colors.card, // Active tab icon color
+          tabBarInactiveTintColor: colors.background, // Inactive tab icon color
           tabBarIcon: ({ color, size }) => {
             let iconName: string = '';
 
@@ -58,8 +58,8 @@ const OfficerTabs = () => {
             tabBarButton: (props) => {
               // Check if accessibilityState is defined and get the selected property safely
               const isSelected = props.accessibilityState?.selected || false;
-              const iconColor = isSelected ? colors.background : colors.text;
-              const textColor = isSelected ? colors.background : colors.text;
+              const iconColor = isSelected ? colors.card : colors.background;
+              const textColor = isSelected ? colors.card : colors.background;
 
               return (
                 <TouchableOpacity

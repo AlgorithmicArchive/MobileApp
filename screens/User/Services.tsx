@@ -36,9 +36,10 @@ const Services = (props: ServicesProps) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-
         const result = await response.json();
-        setColumns(result.obj.columns);
+        let col = result.obj.columns;
+        col = col.map((obj: { title: any; })=>obj.title)
+        setColumns(col);
         setData(result.obj.data);
       } catch (error:any) {
         setError(error.message);

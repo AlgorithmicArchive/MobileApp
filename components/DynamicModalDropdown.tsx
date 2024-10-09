@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { View, Text, Modal, FlatList, StyleSheet, Animated, Dimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useTheme } from '@react-navigation/native';
 import CutomButton from './CustomButton';
 
 interface NavigationItem {
@@ -19,7 +19,7 @@ interface DynamicModalDropdownProps {
 const DynamicModalDropdown: React.FC<DynamicModalDropdownProps> = ({ visible, onClose, screens, title = "Navigate to" }) => {
   const navigation = useNavigation();
   const slideAnim = useRef(new Animated.Value(-Dimensions.get('window').height)).current; // Initial position off-screen
-
+  const {colors} = useTheme();
   // Handle navigation and close modal
   const handleOptionPress = (screenName: string) => {
     onClose(); // Close the modal first
@@ -53,9 +53,9 @@ const DynamicModalDropdown: React.FC<DynamicModalDropdownProps> = ({ visible, on
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
-        <Animated.View style={[styles.modalView, { transform: [{ translateY: slideAnim }] }]}>
+        <Animated.View style={[styles.modalView, { transform: [{ translateY: slideAnim }],backgroundColor:colors.background }]}>
           {/* Optional Title */}
-          <Text style={styles.modalTitle}>{title}</Text>
+          <Text style={[styles.modalTitle,{color:colors.text}]}>{title}</Text>
 
           {/* Render List of Buttons Dynamically from `screens` Array */}
           <FlatList

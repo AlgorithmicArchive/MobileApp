@@ -1,7 +1,7 @@
-import { useTheme } from '@react-navigation/native';
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, SafeAreaView, ScrollView } from 'react-native';
 import CustomButton from './CustomButton';
+import { useTheme } from '@react-navigation/native';
 
 interface TableRowProps {
   data: string[];
@@ -12,7 +12,7 @@ interface TableRowProps {
 }
 
 const TableRow: React.FC<TableRowProps> = React.memo(({ data, background, color, cellWidth, onButtonPress }) => {
-
+  const {colors} = useTheme();
   // Memoize the rendering of cell content to avoid unnecessary re-rendering
   const renderCellContent = (cell: string) => {
     let content;
@@ -37,7 +37,7 @@ const TableRow: React.FC<TableRowProps> = React.memo(({ data, background, color,
   return (
     <View style={[styles.row, { backgroundColor: background }]}>
       {data.map((cell, index) => (
-        <View key={index} style={[styles.cell, { width: cellWidth }]}>
+        <View key={index} style={[styles.cell, { width: cellWidth,borderColor:colors.primary }]}>
           {renderCellContent(cell)}
         </View>
       ))}
@@ -45,12 +45,8 @@ const TableRow: React.FC<TableRowProps> = React.memo(({ data, background, color,
   );
 });
 
-interface Column {
-  title: string;
-}
-
 interface CustomTableProps {
-  columns: Column[];
+  columns: string[];
   data: string[][];
   onButtonPress: (...args: any[]) => void; // Accepts any number of parameters of any type
 }
@@ -59,7 +55,7 @@ const CustomTable: React.FC<CustomTableProps> = ({ columns, data, onButtonPress 
   const { colors } = useTheme();
 
   // Memoize the column headers to avoid re-rendering
-  const columnHeaders = useMemo(() => columns.map((col) => col.title), [columns]);
+  const columnHeaders = useMemo(() => columns.map((col) => col), [columns]);
 
   // Set a fixed cell width (You can customize this based on your content)
   const cellWidth = 120;
@@ -108,7 +104,7 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 0.5,
+    borderWidth: 1,
   },
   cellText: {
     fontSize: 16,

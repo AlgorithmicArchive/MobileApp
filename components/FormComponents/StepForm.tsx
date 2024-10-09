@@ -16,6 +16,7 @@ interface StepFormProps {
   handlePrevious: () => void;
   handleNext: (data: any) => Promise<void>;
   setValue:(name: string, value: any, config?: object) => void;
+  getValues: (name?: string) => any;
   canGoNext: boolean;
 }
 
@@ -30,6 +31,7 @@ const StepForm: React.FC<StepFormProps> = ({
   handlePrevious,
   handleNext,
   setValue,
+  getValues,
   canGoNext,
 }) => {
   const [scrollEnabled, setScrollEnabled] = useState(true); // State to toggle scroll in FlatList
@@ -47,6 +49,7 @@ const StepForm: React.FC<StepFormProps> = ({
             setParentScrollEnabled={setScrollEnabled} // Pass the scroll toggler
             control={control} 
             setValue={setValue}
+            getValues={getValues}
             errors={errors}          />
         );
       case 'buttons':

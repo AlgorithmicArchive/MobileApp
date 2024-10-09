@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { fetchApplicationDetails } from '../../assets/functions/fetch';
 import { useThemedStyles } from '../../styles/styles';
 import { Image } from 'react-native-elements';
@@ -8,6 +8,10 @@ import { useTheme } from '@react-navigation/native';
 import WebViewModal from '../../components/WebViewModal';
 import CustomSelect from '../../components/FormComponents/CustomSelect';
 import { useForm } from 'react-hook-form';
+import CustomTable from '../../components/CustomTable';
+import CutomButton from '../../components/CustomButton';
+import CustomInput from '../../components/FormComponents/CustomInput';
+import CustomFileSelector from '../../components/FormComponents/CustomFileSelector';
 const { SERVER_URL } = Constants.expoConfig?.extra || {};
 
 // Define the type for generalDetail
@@ -55,13 +59,13 @@ const UserDetails = ({ route }) => {
   const [perAddressDetail,setPerAddressDetails] = useState<AddressDetails | null>(null)
   const [bankDetails,setBankDetails] = useState<BankDetails |null>(null);
   const [documents,setDocuments] = useState<Document[] | []>([]);
-  const [serviceContent,setServiceContent] = useState();
-  const [currentOfficer,setCurrentOfficer] = useState('');
-  const [previousActions,setPreviousActions] = useState([]);
+  const [actionOptions,setActionOptions] = useState([])
+  const [previousActions,setPreviousActions] = useState({columns:[],data:[]});
   const [documentUrl, setDocumentUrl] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
 
-  const { control, handleSubmit, formState: { errors } } = useForm<any>({ mode: 'all', reValidateMode: 'onChange' });
+  const { control, formState: { errors },getValues,watch } = useForm<any>({ mode: 'all', reValidateMode: 'onChange' });
+  const action = watch('action');
   const {colors} = useTheme();
 
   const { applicationId } = route.params;
@@ -70,6 +74,10 @@ const UserDetails = ({ route }) => {
   const handleDocumentModel=(documentUrl)=>{
     setDocumentUrl(documentUrl);
     setModalVisible(true);
+  }
+
+  const handleTakeAction = ()=>{
+    console.log("Form Data",getValues());
   }
 
 
@@ -83,8 +91,7 @@ const UserDetails = ({ route }) => {
 
   // Fetch application details on component mount
   useEffect(() => {
-    fetchApplicationDetails(applicationId, setGeneralDetails,setPreAddressDetails,setPerAddressDetails,setBankDetails,setDocuments,setServiceContent,setCurrentOfficer,setPreviousActions);
-    console.log(previousActions);
+    fetchApplicationDetails(applicationId, setGeneralDetails,setPreAddressDetails,setPerAddressDetails,setBankDetails,setDocuments,setActionOptions,setPreviousActions);
   }, [applicationId]);
 
   // Helper function to render values safely within <Text> components
@@ -100,9 +107,9 @@ const UserDetails = ({ route }) => {
             if (!isNaN(serviceValue as number)) return null;
 
             return (
-              <View key={serviceKey} style={{ marginVertical: 5 }}>
-                <Text style={{ fontWeight: 'bold' }}>{formatKey(serviceKey)}:</Text>
-                <Text style={{ fontSize: 18, borderWidth: 1, borderRadius: 5,borderColor: colors.primary,padding: 5 }}>
+              <View key={serviceKey} style={{ marginVertical: 5,flexDirection:'row',alignItems:'center',justifyContent:'space-between', borderWidth: 0, borderRadius: 5,borderColor: colors.primary,padding:5 }}>
+                <Text style={{ fontWeight: 'bold',color:colors.primary }}>{formatKey(serviceKey)}:</Text>
+                <Text style={{ fontSize: 18,color:colors.text,padding: 5 }}>
                   {String(serviceValue)}
                 </Text>
               </View>
@@ -113,8 +120,8 @@ const UserDetails = ({ route }) => {
     } 
     else if(key == 'applicantImage'){
         return (
-            <View style={{ marginVertical: 5 }} key={key}>
-            <Text style={{ fontWeight: 'bold', fontSize: 16 }}>
+            <View style={{ marginVertical: 5,flexDirection:'row',alignItems:'center',justifyContent:'space-between', borderWidth: 0, borderRadius: 5,borderColor: colors.primary,padding:5 }} key={key}>
+            <Text style={{ fontWeight: 'bold', fontSize: 16,color:colors.primary }}>
               {formatKey(key)}
             </Text>
           
@@ -129,9 +136,9 @@ const UserDetails = ({ route }) => {
     }
     else {
       return (
-        <View style={{ marginVertical: 5 }} key={key}>
-          <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{formatKey(key)}:</Text>
-          <Text style={{ fontSize: 18, borderWidth: 1, borderRadius: 5,borderColor: colors.primary, padding: 5 }}>
+        <View style={{ marginVertical: 5,flexDirection:'row',alignItems:'center',justifyContent:'space-between', borderWidth: 0, borderRadius: 5,borderColor: colors.primary,padding:5,flexWrap:key=="bankName"?'wrap':'nowrap' }} key={key}>
+          <Text style={{ fontWeight: 'bold', fontSize: 16,color:colors.primary }}>{formatKey(key)}:</Text>
+          <Text style={{ fontSize: 18,color:colors.text, padding: 5 }}>
             {String(value)}
           </Text>
         </View>
@@ -142,8 +149,8 @@ const UserDetails = ({ route }) => {
   const renderDocument = (doc) =>{
     return(
         <View style={{ marginVertical: 5 }} key={doc.Label}>
-            <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{doc.Label}:</Text>
-            <Text style={{ fontSize: 18, color:'blue' }} onPress={()=>{handleDocumentModel(doc.File)}}>
+            <Text style={{ fontWeight: 'bold', fontSize: 16,color:colors.primary }}>{doc.Label}:</Text>
+            <Text style={{ fontSize: 18, color:colors.text }} onPress={()=>{handleDocumentModel(doc.File)}}>
             {doc.Enclosure}
             </Text>
         </View>
@@ -152,50 +159,77 @@ const UserDetails = ({ route }) => {
 
   return (
     <ScrollView>
-      <View style={[containerStyles.fullScreen,{paddingVertical:5}]}>
-        <Text style={{fontSize:24,fontWeight:'bold',marginBottom:10}}>General Details</Text>
-        {generalDetails && Object.entries(generalDetails).map(([key, value]) => (
-          <View key={key} style={{  width: '100%' }}>
-            {renderValue(key, value)}
-          </View>
-        ))}
+      <View style={[containerStyles.fullScreen,{paddingVertical:5,paddingHorizontal:20}]}>
 
-        <Text style={{fontSize:24,fontWeight:'bold',marginBottom:10,marginTop:10}}>Present Address Details</Text>
-        {preAddressDetail && Object.entries(preAddressDetail).map(([key, value]) => (
-          <View key={key} style={{  width: '100%' }}>
-            {renderValue(key, value)}
-          </View>
-        ))}
-
-        <Text style={{fontSize:24,fontWeight:'bold',marginBottom:10,marginTop:10}}>Permanent Address Details</Text>
-        {perAddressDetail && Object.entries(perAddressDetail).map(([key, value]) => (
-          <View key={key} style={{  width: '100%' }}>
-            {renderValue(key, value)}
-          </View>
-        ))}
-
-        <Text style={{fontSize:24,fontWeight:'bold',marginBottom:10,marginTop:10}}>Bank Details</Text>
-        {bankDetails && Object.entries(bankDetails).map(([key, value]) => (
-          <View key={key} style={{  width: '100%' }}>
-            {renderValue(key, value)}
-          </View>
-        ))}
-
-        <Text style={{fontSize:24,fontWeight:'bold',marginBottom:10,marginTop:10}}>Bank Details</Text>
-        {documents && documents.map((item,index)=>(
-           <View key={index} style={{  width: '100%' }}>
-             {renderDocument(item)}
-           </View>
-        ))}
-
-        <View style={{width:'100%',borderWidth:1,borderRadius:5,padding:0}}>
-            <View style={{backgroundColor:colors.primary,padding:10}}>
-                <Text style={{fontSize:14,fontWeight:'bold',color:'#fff'}}>Action To Take</Text>
+        <View style={[styles.section,{backgroundColor:colors.card}]}>
+          <Text style={{fontSize:24,fontWeight:'bold',marginBottom:10,color:colors.primary}}>General Details</Text>
+          {generalDetails && Object.entries(generalDetails).map(([key, value]) => (
+            <View key={key} style={{  width: '100%' }}>
+              {renderValue(key, value)}
             </View>
-            <View style={{padding:5,backgroundColor:"#fff"}}>
-                <CustomSelect name={''} control={control} placeholder={'Choose Action'} options={[]} label={'Choose Action'} onChange={function (value: any): void {
-                          throw new Error('Function not implemented.');
-                      } }/>
+          ))}
+        </View>
+        <View style={[styles.section,{backgroundColor:colors.card}]}>
+          <Text style={{fontSize:24,fontWeight:'bold',marginBottom:10,color:colors.primary,marginTop:10}}>Present Address Details</Text>
+          {preAddressDetail && Object.entries(preAddressDetail).map(([key, value]) => (
+            <View key={key} style={{  width: '100%' }}>
+              {renderValue(key, value)}
+            </View>
+          ))}
+        </View>
+       
+        <View style={[styles.section,{backgroundColor:colors.card}]}>
+          <Text style={{fontSize:24,fontWeight:'bold',marginBottom:10,color:colors.primary,marginTop:10}}>Permanent Address Details</Text>
+          {perAddressDetail && Object.entries(perAddressDetail).map(([key, value]) => (
+            <View key={key} style={{  width: '100%' }}>
+              {renderValue(key, value)}
+            </View>
+          ))}
+        </View>
+        
+        <View style={[styles.section,{backgroundColor:colors.card}]}>
+          <Text style={{fontSize:24,fontWeight:'bold',marginBottom:10,color:colors.primary,marginTop:10}}>Bank Details</Text>
+          {bankDetails && Object.entries(bankDetails).map(([key, value]) => (
+            <View key={key} style={{  width: '100%' }}>
+              {renderValue(key, value)}
+            </View>
+          ))}
+        </View>
+        
+
+        <View style={[styles.section,{backgroundColor:colors.card}]}>
+          <Text style={{fontSize:24,fontWeight:'bold',marginBottom:10,color:colors.primary,marginTop:10}}>Previous Actions</Text>
+          {previousActions && <CustomTable columns={previousActions.columns} data={previousActions.data} onButtonPress={function (...args: any[]): void {
+            throw new Error('Function not implemented.');
+          } }/>}
+        </View>
+       
+        <View style={[styles.section,{backgroundColor:colors.card}]}>
+          <Text style={{fontSize:24,fontWeight:'bold',marginBottom:10,color:colors.primary,marginTop:10}}>Bank Details</Text>
+          {documents && documents.map((item,index)=>(
+            <View key={index} style={{  width: '100%' }}>
+              {renderDocument(item)}
+            </View>
+          ))}
+        </View>
+       
+
+        <View style={{width:'100%',borderWidth:1,borderRadius:5,borderColor:colors.primary,padding:5}}>
+            <View style={{backgroundColor:colors.primary,padding:10,borderRadius:5}}>
+                <Text style={{fontSize:14,fontWeight:'bold',color:colors.background}}>Action To Take</Text>
+            </View>
+            <View style={{padding:5,backgroundColor:colors.background,flexDirection:'column',gap:10}}>
+                <CustomSelect name={'action'} control={control} placeholder={'Choose Action'} options={actionOptions} label={'Choose Action'} onChange={()=>{}}/>
+                {action === "Forward" && (
+                  <CustomFileSelector
+                    control={control}
+                    label="Certificate by TSWO"
+                    name="certificate" // Ensure to give a unique name here
+                    errors={errors}
+                  />
+                )}
+                <CustomInput name={'remarks'} control={control} placeholder={'Remarks'}/>
+                <CutomButton name={'Take Action'} onPress={handleTakeAction}/>
             </View>
         </View>
       </View>
@@ -213,3 +247,16 @@ const UserDetails = ({ route }) => {
 };
 
 export default UserDetails;
+
+const styles = StyleSheet.create({
+  section:{
+    width:'100%',
+    backgroundColor:'#fff',
+    padding:10,
+    borderRadius:10,
+    elevation:5,
+    alignItems:'center',
+    marginTop:10,
+    marginBottom:10,
+  }
+})

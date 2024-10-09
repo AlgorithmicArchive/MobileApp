@@ -28,8 +28,8 @@ const HomeTabs = (props: HomeTabsProps) => {
 
           return <Ionicons name={iconName} color={color} size={size} />;
         },
-        tabBarActiveTintColor: colors.background, // Active tab icon color
-        tabBarInactiveTintColor: colors.text, // Inactive tab icon color
+        tabBarActiveTintColor: colors.card, // Active tab icon color
+        tabBarInactiveTintColor: colors.background, // Inactive tab icon color
       })}
     >
       <Tab.Screen name="Home" component={Index} />

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Text, KeyboardTypeOptions } from 'react-native'; // Import KeyboardTypeOptions
 import { Controller } from 'react-hook-form';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useTheme } from '@react-navigation/native';
 
 interface CustomInputProps {
   name: string;
@@ -30,6 +31,8 @@ const CustomInput: React.FC<CustomInputProps> = ({
   errors,
   keyboardType = 'default',  // Set a default value for keyboardType
 }) => {
+
+  const {colors} = useTheme();
   return (
     <Controller
       control={control}
@@ -37,12 +40,13 @@ const CustomInput: React.FC<CustomInputProps> = ({
       rules={rules}
       render={({ field: { onChange, onBlur, value } }) => (
         <View style={{ width: '100%' }}>
-          {placeholder && <Text style={{padding:3}}>{placeholder}</Text>}
-          <View style={styles.inputContainer}>
+          {placeholder && <Text style={{padding:3,fontSize:14,fontWeight:'bold',color:colors.primary}}>{placeholder}</Text>}
+          <View style={[styles.inputContainer,{borderColor:colors.primary,borderWidth:1}]}>
             {iconName && <Ionicons name={iconName} size={20} color="#b0b0b0" style={styles.icon} />}
             <TextInput
-              style={styles.input}
+              style={[styles.input,{color:colors.text}]}
               placeholder={placeholder}
+              placeholderTextColor={colors.text}
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
@@ -70,10 +74,8 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF',
     borderRadius: 10,
     paddingHorizontal: 15,
-    elevation: 3,
   },
   icon: {
     marginRight: 10,
@@ -81,7 +83,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: 50,
-    fontSize: 16,
+    fontSize: 14,
   },
   errorText: {
     color: 'red',

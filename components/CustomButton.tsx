@@ -21,16 +21,14 @@ const CutomButton: React.FC<ButtonProps> = ({ name, onPress }) => {
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: '#6200EE',
     padding: 20,
     borderRadius: 15,
     alignItems: 'center',
     width:'100%',
   },
   buttonText: {
-    color: '#FFFFFF',
     fontSize: 14,
-    fontWeight: 'normal',
+    fontWeight: 'bold',
   },
 });
 

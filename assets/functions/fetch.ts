@@ -73,7 +73,9 @@ export async function fetchServiceContent(setServiceName:any,setGeneralForm:any,
     try {
       const response = await fetch(`${SERVER_URL}/User/GetApplicationStatus?type=ApplicationStatus&start=0&length=10`);
       const result = await response.json();
-      setColumns(result.obj.columns);
+      let col = result.obj.columns;
+      col = col.map((obj: { title: any; })=>obj.title)
+      setColumns(col);
       setData(result.obj.data);
     } catch (error) {
       setError(error.message)
@@ -100,7 +102,7 @@ export async function fetchServiceContent(setServiceName:any,setGeneralForm:any,
   }
 
 
-export async function fetchApplicationDetails(applicationId:string,setGeneralDetails:any,setPreAddressDetails:any,setPerAddressDetails:any,setBankDetails:any,setDocumnets:any,setServiceContent:any,setCurrentOfficer:any,setPreviousActions:any) {
+export async function fetchApplicationDetails(applicationId:string,setGeneralDetails:any,setPreAddressDetails:any,setPerAddressDetails:any,setBankDetails:any,setDocumnets:any,setActionOptions,setPreviousActions:any) {
   try {
     const response = await fetch(`${SERVER_URL}/Officer/GetApplicationDetails?ApplicationId=${applicationId[0]}`);
     const result = await response.json();
@@ -150,10 +152,34 @@ export async function fetchApplicationDetails(applicationId:string,setGeneralDet
     }))
 
     setDocumnets(documents);
-    setServiceContent(result.serviceContent)
-    setCurrentOfficer(result.currentOfficer);
-    setPreviousActions(result.previousActions)
-    console.log(result.previousActions);
+
+    const workForceOfficers = JSON.parse(result.serviceContent.workForceOfficers);
+    let officer;
+    let currentIndex;
+    workForceOfficers.map((item,index) => {
+      if (item.Designation == result.currentOfficer) {
+        officer = item;
+        currentIndex = index;
+      }
+    });
+
+    const options:any =[];
+
+    if(officer.canForward) options.push({label:`Forward To ${workForceOfficers[currentIndex+1].Designation}`,value:"Forward"});
+    if(officer.canReturn) options.push({label:`Return To ${workForceOfficers[currentIndex+1].Designation}`,value:"Return"});
+    if(officer.canReturnToEdit) options.push({label:`Return To Citizen for editing`,value:"ReturnToEdit"});
+    if(officer.canSanction) options.push({label:`Issue Sanction Letter`,value:"Sanction"});
+    if(officer.canUpdate) options.push({label:`Update and Forward To ${workForceOfficers[currentIndex+1].Designation}`,value:"Update"});
+    options.push({label:"Reject",value:"Reject"});
+    setActionOptions(options);
+
+
+    
+
+    let previousActionData = result.previousActions;
+    let previousActionColumns = ["ActionTaker","ActionTaken","DateTime","Remarks","File"];
+    previousActionData =previousActionData.map(obj => previousActionColumns.map(key => obj[key]));
+    setPreviousActions({columns:previousActionColumns,data:previousActionData});
 
   } catch (error) {
     console.error('Error fetching service content:', error);

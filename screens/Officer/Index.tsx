@@ -70,7 +70,9 @@ const handleApplication = (applicationId:string,type:string)=>{
       const data = await result.json();
       let list;
       if(type=="Pending") list = data.applicationList.pendingList;
-      setColumns(list.columns);
+      let col = list.columns;
+      col = col.map((obj: { title: any; })=>obj.title)
+      setColumns(col);
       setData(list.data);
     }
   }
@@ -119,8 +121,8 @@ const handleApplication = (applicationId:string,type:string)=>{
             <View style={styles.cardContainer}>
               {/* Pending Applications Card */}
               <CustomCard
-                bgColor="#FFC107"
-                textColor="#000"
+                bgColor="#F0C38E"
+                textColor="#312C51"
                 title="Pending Applications"
                 icon="hourglass-outline"
                 value={count.pending}

@@ -279,6 +279,7 @@ const Form: React.FC = () => {
       step={step}
       handlePrevious={handlePrevious}
       setValue={setValue}
+      getValues={getValues}
       handleNext={handleNext}
       canGoNext={canGoNext}
     />

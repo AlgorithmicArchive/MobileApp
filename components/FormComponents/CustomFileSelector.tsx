@@ -4,6 +4,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { View, StyleSheet, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { Control, FieldValues } from 'react-hook-form';
+import { useTheme } from '@react-navigation/native';
 
 interface CustomFileSelectorProps {
   label: string;
@@ -54,7 +55,7 @@ const CustomFileSelector: React.FC<CustomFileSelectorProps> = ({ label, errors, 
       await handleFilePicker(onChange);
     }
   };
-
+  const {colors} = useTheme();
   return (
     <Controller
       control={control}
@@ -62,12 +63,12 @@ const CustomFileSelector: React.FC<CustomFileSelectorProps> = ({ label, errors, 
       rules={rules}
       render={({ field: { onChange, value } }) => (
         <View style={styles.container}>
-          <Text style={styles.label}>{label}</Text>
+          <Text style={[styles.label,{color:colors.primary}]}>{label}</Text>
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.button,{borderColor:colors.primary,borderWidth:1}]}
             onPress={() => handlePicker(onChange)}
           >
-            <Text style={styles.buttonText}>{label === 'Applicant image' ? 'Choose Image' : 'Choose File'}</Text>
+            <Text style={[styles.buttonText,{color:colors.text}]}>{label === 'Applicant image' ? 'Choose Image' : 'Choose File'}</Text>
           </TouchableOpacity>
 
           {/* Display selected image or file name */}
@@ -89,24 +90,21 @@ const CustomFileSelector: React.FC<CustomFileSelectorProps> = ({ label, errors, 
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 5,
   },
   label: {
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 14,
     alignSelf: 'stretch',
-    marginBottom: 5,
   },
   button: {
-    backgroundColor: '#F0F0F0',
     width: '100%',
     padding: 15,
     borderRadius: 10,
-    elevation: 3,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
+    marginTop:5,
   },
   buttonText: {
     color: '#000',
@@ -114,7 +112,7 @@ const styles = StyleSheet.create({
   },
   previewContainer: {
     flexDirection: 'row',
-    paddingVertical: 10,
+    paddingVertical: 5,
   },
   image: {
     width: 70,

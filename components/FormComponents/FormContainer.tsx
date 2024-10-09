@@ -8,6 +8,8 @@ import { Field } from '../../types';
 import { validationMap } from '../../assets/functions/formvalidations';
 import { fetchDistricts, fetchTehsils, fetchBlocks } from '../../assets/functions/fetch';
 import CustomFileSelector from './CustomFileSelector';
+import CustomCheckbox from './CustomCheckbox';
+import { useTheme } from '@react-navigation/native';
 
 interface FormContainerProps {
   formElements: Field[];
@@ -16,6 +18,7 @@ interface FormContainerProps {
   step: number;
   handleInputChange: (name: string, value: string, field: Field) => void;
   setValue:(name: string, value: any, config?: object) => void;
+  getValues: (name?: string) => any;
   setParentScrollEnabled: (enabled: boolean) => void;
 }
 
@@ -25,13 +28,14 @@ const FormContainer: React.FC<FormContainerProps> = ({
   errors,
   step,
   setValue,
+  getValues,
   handleInputChange,
 }) => {
   const [districtOptions, setDistrictOptions] = useState<{ label: string; value: any }[]>([]);
   const [tehsilOptions, setTehsilOptions] = useState<{ label: string; value: any }[]>([]);
   const [blockOptions, setBlockOptions] = useState<{ label: string; value: any }[]>([]);
   const [selectedDistrict, setSelectedDistrict] = useState<any>(null);
-
+  const {colors} = useTheme();
   // Fetch districts on component mount
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -68,8 +72,28 @@ const FormContainer: React.FC<FormContainerProps> = ({
     }
   }, [selectedDistrict]);
 
-  
 
+  // Handle SameAsPresent Checkbox Change
+  const handleSameAsPresentChange = (isChecked: boolean) => {
+    console.log("Checkbox toggled:", isChecked);
+  
+    if (isChecked) {
+      // Fetch all form values
+      const preAddressValues = getValues(); // Get all values from the form
+  
+      // Loop through the fields in formElements which represent perAddressForm
+      formElements.forEach((field) => {
+        const preFieldName = field.name.replace('Permanent', 'Present'); 
+        // Get the value from preAddressValues for the corresponding preAddress field
+        const preValue = preAddressValues[preFieldName];
+        // Check if the value exists and set it to the corresponding perAddress field
+        if (preValue !== undefined) {
+          setValue(field.name, preValue);
+        }
+      });
+    }
+  };
+  
 
   const renderField = (field: Field) => {
 
@@ -161,12 +185,19 @@ const FormContainer: React.FC<FormContainerProps> = ({
               options={field.options?.map((opt) => ({ label: opt, value: opt })) || []}
               control={control}
               name={field.name}
+              label={field.label}
               rules={{ validate: (value: any) => runValidations(field, value) }}
               errors={errors} 
               defaultValue={'Father'}
               />
           </View>
         );
+      case 'checkbox':
+        return(
+          <View key={field.name} style={styles.fieldContainer}>
+            <CustomCheckbox name={field.name} control={control} label={field.label} onChangeCallback={field.name=="SameAsPresent"?handleSameAsPresentChange:undefined}/>
+          </View>
+        )
       default:
         return null;
     }
@@ -174,7 +205,7 @@ const FormContainer: React.FC<FormContainerProps> = ({
 
   return (
     <View style={styles.formContainer}>
-      <Text style={styles.title}>
+      <Text style={[styles.title,{color:colors.text}]}>
         {step === 0
           ? 'General Details'
           : step === 1
@@ -198,7 +229,6 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     fontSize: 24,
-    color: '#000',
     marginBottom: 10,
     textAlign: 'center',
   },

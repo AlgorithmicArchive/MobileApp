@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Controller } from 'react-hook-form';
+import { useTheme } from '@react-navigation/native';
 
 interface CustomDatePickerProps {
   label: string;
@@ -25,7 +26,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({ label, control, nam
 
     return `${day} ${month} ${year}`; // Return formatted date as "DD MMM YYYY"
   };
-
+  const {colors} = useTheme();
   return (
     <Controller
       control={control}
@@ -33,12 +34,12 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({ label, control, nam
       rules={rules}
       render={({ field: { onChange, value } }) => (
         <View style={styles.container}>
-          <Text style={styles.label}>{label}</Text>
+          <Text style={[styles.label,{color:colors.primary}]}>{label}</Text>
           <TouchableOpacity
-            style={styles.touchable}
+            style={[styles.touchable,{borderColor:colors.primary,borderWidth:1}]}
             onPress={() => setShow(true)}
           >
-            <Text style={styles.dateText}>{value || 'dd/mm/yyyy'}</Text>
+            <Text style={[styles.dateText,{color:colors.text}]}>{value || 'dd/mm/yyyy'}</Text>
           </TouchableOpacity>
           {show && (
             <DateTimePicker
@@ -74,11 +75,9 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   touchable: {
-    backgroundColor: '#FFF',
     width: '100%',
     padding: 15,
     borderRadius: 10,
-    elevation: 3,
     height: 50,
     justifyContent: 'center',
   },

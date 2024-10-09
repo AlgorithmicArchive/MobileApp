@@ -26,7 +26,7 @@ const FormButtons: React.FC<FormButtonsProps> = ({ step, onPrevious, onNext, can
         onPress={onPrevious}
         disabled={step === 0}
       >
-        <Text style={styles.buttonText}>Previous</Text>
+        <Text style={[styles.buttonText,{color:colors.background}]}>Previous</Text>
       </TouchableOpacity>
 
       {/* Next or Submit Button */}
@@ -36,14 +36,14 @@ const FormButtons: React.FC<FormButtonsProps> = ({ step, onPrevious, onNext, can
           onPress={handleSubmit(handleNextClick)} // Ensure validation and pass the callback
           disabled={!canGoNext}
         >
-          <Text style={styles.buttonText}>Next</Text>
+          <Text style={[styles.buttonText,{color:colors.background}]}>Next</Text>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity
           style={[styles.button, { backgroundColor: colors.primary }]}
           onPress={handleSubmit(handleNextClick)} // Use handleSubmit for the final submit button as well
         >
-          <Text style={styles.buttonText}>Submit</Text>
+          <Text style={[styles.buttonText,{color:colors.background}]}>Submit</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -67,7 +67,6 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: 'white',
   },
 });
 

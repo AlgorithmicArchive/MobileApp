@@ -1,3 +1,4 @@
+import { useTheme } from '@react-navigation/native';
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
 
@@ -6,7 +7,8 @@ interface ServiceNameProps {
 }
 
 const ServiceName: React.FC<ServiceNameProps> = ({ name }) => {
-  return <Text style={styles.serviceName}>{name}</Text>;
+  const {colors} = useTheme();
+  return <Text style={[styles.serviceName,{color:colors.primary}]}>{name}</Text>;
 };
 
 const styles = StyleSheet.create({
@@ -14,7 +16,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: '#000',
     marginBottom: 20,
   },
 });

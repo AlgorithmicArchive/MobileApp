@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { Picker } from '@react-native-picker/picker'; // Import Picker from the correct package
+import { useTheme } from '@react-navigation/native';
 
 interface Option {
   label: string;
@@ -30,15 +31,16 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   label,
   onChange,
 }) => {
+  const {colors} = useTheme();
   return (
     <View style={{ width: '100%' }}>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label,{color:colors.primary}]}>{label}</Text>
       <Controller
         control={control}
         name={name}
         rules={rules}
         render={({ field: { onChange: formOnChange, value ,onBlur} }) => (
-          <View style={styles.selectContainer}>
+          <View style={[styles.selectContainer,{borderColor:colors.primary,borderWidth:1}]}>
             <Picker
               selectedValue={value}
               onValueChange={(itemValue) => {
@@ -46,10 +48,10 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                 onChange(itemValue); // Also trigger the passed onChange to update district
               }}
               onBlur={onBlur}
-              style={styles.picker}
+              style={[styles.picker,{color:colors.text}]}
               prompt={placeholder}
             >
-              <Picker.Item style={{ color: 'gray' }} label={'Select Option'} value="" />
+              <Picker.Item style={{ color: colors.text }} label={'Select Option'} value="" />
               {options.map((option) => (
                 <Picker.Item key={option.value} label={option.label} value={option.value} />
               ))}
@@ -65,11 +67,10 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 const styles = StyleSheet.create({
   label: {
     fontSize: 14,
+    fontWeight:'bold'
   },
   selectContainer: {
-    backgroundColor: '#FFF',
     borderRadius: 10,
-    elevation: 3,
   },
   picker: {
     height: 50,

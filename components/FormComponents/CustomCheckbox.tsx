@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import { Controller } from 'react-hook-form';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface CustomCheckboxProps {
   name: string;
@@ -8,6 +9,7 @@ interface CustomCheckboxProps {
   label: string;
   rules?: object;
   errors?: any;
+  onChangeCallback?: (isChecked: boolean) => void; // New prop for change callback
 }
 
 const CustomCheckbox: React.FC<CustomCheckboxProps> = ({
@@ -16,54 +18,53 @@ const CustomCheckbox: React.FC<CustomCheckboxProps> = ({
   label,
   rules,
   errors,
+  onChangeCallback,
 }) => {
   return (
     <Controller
       control={control}
       name={name}
       rules={rules}
-      render={({ field: { onChange, value } }) => (
+      render={({ field: { value, onChange } }) => (
+        <View style={styles.container}>
         <TouchableOpacity
-          style={styles.checkboxContainer}
-          onPress={() => onChange(!value)} // Toggle checkbox state
-        >
-          <View style={[styles.checkbox, value ? styles.checked : styles.unchecked]}>
-            {value && <Text style={styles.checkmark}>✔</Text>} {/* Checkmark */}
-          </View>
+            style={styles.checkbox}
+            onPress={() => {
+              const newValue = !value;
+              onChange(newValue);
+              onChangeCallback?.(newValue); // Call the callback if provided
+            }}
+          >
+            <Ionicons
+              name={value ? 'checkbox-outline' : 'square-outline'}
+              size={24}
+              color={value ? '#6200ea' : '#b0b0b0'} // Color changes based on the value
+            />
+          </TouchableOpacity>
           <Text style={styles.label}>{label}</Text>
-        </TouchableOpacity>
+          {errors && errors[name] && <Text style={styles.errorText}>{errors[name]?.message}</Text>}
+        </View>
       )}
     />
   );
 };
 
 const styles = StyleSheet.create({
-  checkboxContainer: {
+  container: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 5,
+    marginVertical: 10,
   },
   checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 2,
-    borderColor: '#b0b0b0',
-    justifyContent: 'center',
-    alignItems: 'center',
     marginRight: 10,
-  },
-  checked: {
-    backgroundColor: '#007AFF', // Background color when checked
-  },
-  unchecked: {
-    backgroundColor: '#FFF', // Background color when unchecked
-  },
-  checkmark: {
-    color: '#FFF', // Checkmark color
-    fontSize: 16,
   },
   label: {
     fontSize: 16,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginLeft: 10,
   },
 });
 
