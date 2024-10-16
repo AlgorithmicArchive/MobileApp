@@ -22,7 +22,7 @@ const isDocumentPickerSuccessResult = (
 };
 
 const CustomFileSelector: React.FC<CustomFileSelectorProps> = ({ label, errors, rules, control, name }) => {
-  const handleImagePicker = async (onChange: (value: string | null) => void) => {
+  const handleImagePicker = async (onChange: (value: {uri:string,name:string,filename:string,type:string} | null) => void) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsMultipleSelection: false,
@@ -30,12 +30,16 @@ const CustomFileSelector: React.FC<CustomFileSelectorProps> = ({ label, errors, 
     });
 
     if (!result.canceled) {
-      const newImageUri = result.assets[0].uri;
-      onChange(newImageUri);
+      onChange({
+        uri:result.assets[0].uri,
+        name:result.assets[0].fileName ||'',
+        filename:result.assets[0].fileName ||'',
+        type:result.assets[0].type || ''
+      });
     }
   };
 
-  const handleFilePicker = async (onChange: (value: string | null) => void) => {
+  const handleFilePicker = async (onChange: (value: {uri:string,name:string,filename:string,type:string} | null) => void) => {
     const result = await DocumentPicker.getDocumentAsync({
       type: '*/*',
       copyToCacheDirectory: true,
@@ -43,12 +47,16 @@ const CustomFileSelector: React.FC<CustomFileSelectorProps> = ({ label, errors, 
 
     // Use the type guard to check if the result is a success result
     if (isDocumentPickerSuccessResult(result) && result.assets && result.assets.length > 0) {
-      const fileUri = result.assets[0].uri; // Get the URI from the first asset in the array
-      onChange(fileUri);
+      onChange({
+        uri:result.assets[0].uri,
+        name:result.assets[0].name ||'',
+        filename:result.assets[0].name ||'',
+        type:result.assets[0].mimeType || ''
+      });
     }
   };
 
-  const handlePicker = async (onChange: (value: string | null) => void) => {
+  const handlePicker = async (onChange: (value: {uri:string,name:string,filename:string,type:string} | null) => void) => {
     if (label === 'Applicant image') {
       await handleImagePicker(onChange);
     } else {

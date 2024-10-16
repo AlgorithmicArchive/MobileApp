@@ -67,6 +67,10 @@ const Form: React.FC = () => {
       if (data.hasOwnProperty(field.name)) {
         formData[field.name] = data[field.name];
       }
+      if(field.name == "ApplicantImage") {
+        console.log("Applicant Image",data[field.name]);
+      }
+
     });
     return formData;
   };
@@ -75,17 +79,22 @@ const Form: React.FC = () => {
     try {
       const response = await fetch(url, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
         body: formData,
       });
-
+    
       if (!response.ok) {
+        const errorText = await response.text(); // Log server response text
+        console.log('Server error response:', errorText);
         throw new Error('Failed to submit');
       }
-
+    
       const result = await response.json();
       return result;
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error('Error submitting form:', error.message,error.stack); // Log error message
       return null;
     }
   };
@@ -94,7 +103,6 @@ const Form: React.FC = () => {
     let formData = new FormData();
     let url = '';
     let shouldSubmit = true;
-
     switch (step) {
       case 0: // General Form Submission
         if (!submittedForms[step]) {
@@ -109,28 +117,31 @@ const Form: React.FC = () => {
             }
           });
 
+
           Object.keys(generalData).forEach((key) => formData.append(key, generalData[key]));
 
-          // Handle image upload using FileSystem
-          const imageUri = data.ApplicantImage;
-          if (imageUri) {
-            try {
-              const fileInfo = await FileSystem.getInfoAsync(imageUri);
-              const file = {
-                uri: imageUri,
-                type: 'image/jpeg',
-                name: fileInfo.uri.split('/').pop(),
-              };
-              console.log("Image file",file);
-              formData.append('ApplicantImage', file as any);
-            } catch (error) {
-              console.error('Error converting image:', error);
-            }
-          }
+           // Handle image upload using FileSystem
+          //  const imageUri = data.ApplicantImage;
+          //  if (imageUri) {
+          //    try {
+          //      const fileInfo = await FileSystem.getInfoAsync(imageUri);
+          //      const file = {
+          //        uri: imageUri,
+          //        type: 'image/jpeg',
+          //        name: fileInfo.uri.split('/').pop(),
+          //      };
+          //      console.log("Image file",file);
+          //      formData.append('ApplicantImage', file as any);
+          //    } catch (error) {
+          //      console.error('Error converting image:', error);
+          //    }
+          //  }
 
           if (Object.keys(serviceSpecificData).length > 0) {
             formData.append('ServiceSpecific', JSON.stringify(serviceSpecificData));
           }
+          
+          
           url = `${SERVER_URL}/User/InsertGeneralDetails`;
         } else {
           shouldSubmit = false;
@@ -222,7 +233,6 @@ const Form: React.FC = () => {
         shouldSubmit = false;
         break;
     }
-
     if (shouldSubmit && url) {
       // Append IDs if available
       if (applicationId) formData.append('ApplicationId', applicationId);
@@ -232,7 +242,7 @@ const Form: React.FC = () => {
       formData.append('ServiceId', serviceId);
 
       try {
-        // console.log("FORM DATA", formData);
+        console.log("FORM DATA", formData);
         const result = await submitForm(formData, url);
         if (result) {
           console.log('Form submitted successfully:', result);
